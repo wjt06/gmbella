@@ -27,23 +27,39 @@
       opacity:0;
       color:white;
       font-size:4rem;
-      font-weight:500;  /* a bit bolder than 300 */
+      font-weight:500;
       text-align:center;
       letter-spacing:2px;
       transition: opacity 2s 1s;
       padding:0 20px;
   
-      /* Warm subtle glow (outer glow) */
       text-shadow: 
         0 0 20px rgba(255, 255, 255, 1),
-        0 0 40px rgba(255, 200, 100, 0.8),  /* soft golden tint */
-    
-        /* Dark shadow for contrast against bright sky */
+        0 0 40px rgba(255, 200, 100, 0.8),
         0 4px 20px rgba(255, 180, 80, 0.8),
         0 8px 40px rgba(0, 0, 0, 0.6);
-      }
+    }
+    .message.show { opacity:1; }
 
-.message.show { opacity:1; }
+    /* Small contact text at the bottom */
+    .contact {
+      opacity:0;
+      position:fixed;
+      bottom:30px;
+      left:50%;
+      transform:translateX(-50%);
+      color:white;
+      font-size:1rem;
+      font-weight:400;
+      letter-spacing:1px;
+      text-align:center;
+      transition: opacity 2s 1.5s;  /* fades in a little after the main message */
+      
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+    .contact.show { opacity:1; }
     
     .tap-button {
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -63,6 +79,7 @@
     @media (max-width:768px) {
       .message { font-size:2.8rem; }
       .tap-button { font-size:1.5rem; padding:18px 36px; }
+      .contact { font-size:0.9rem; bottom:20px; }
     }
   </style>
 </head>
@@ -74,12 +91,25 @@
     <div class="message">Good Morning<br>Sunshine!☀️</div>
   </div>
 
+  <!-- Small contact text -->
+  <div class="contact">Contact: wesley@gmbella.com</div>
+
+  <!-- Audio element (hidden) -->
+  <audio id="sunshineAudio" src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" preload="auto"></audio>
+
   <script>
     function openShade() {
+      // Open the shade
       document.querySelector('.shade').classList.add('open');
       document.querySelector('.tap-button').style.display='none';
+      
+      // Play the music
+      document.getElementById('sunshineAudio').play().catch(e => console.log("Audio play failed (user may need to interact first on some devices)", e));
+      
+      // Show main message
       setTimeout(() => {
         document.querySelector('.message').classList.add('show');
+        document.querySelector('.contact').classList.add('show');
       }, 800);
     }
   </script>
