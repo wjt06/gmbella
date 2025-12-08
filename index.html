@@ -41,7 +41,7 @@
     }
     .message.show { opacity:1; }
 
-    /* Small contact text at the bottom */
+    /* Smaller contact text + mailto link */
     .contact {
       opacity:0;
       position:fixed;
@@ -49,17 +49,19 @@
       left:50%;
       transform:translateX(-50%);
       color:white;
-      font-size:1rem;
+      font-size:0.85rem;  /* smaller and more subtle */
       font-weight:400;
       letter-spacing:1px;
       text-align:center;
-      transition: opacity 2s 1.5s;  /* fades in a little after the main message */
+      text-decoration:none;
+      transition: opacity 2s 1.5s;
       
       text-shadow: 
         0 0 10px rgba(255, 255, 255, 0.8),
         0 2px 10px rgba(0, 0, 0, 0.6);
     }
     .contact.show { opacity:1; }
+    .contact:hover { opacity:0.9; }  /* tiny feedback on desktop */
     
     .tap-button {
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -79,7 +81,7 @@
     @media (max-width:768px) {
       .message { font-size:2.8rem; }
       .tap-button { font-size:1.5rem; padding:18px 36px; }
-      .contact { font-size:0.9rem; bottom:20px; }
+      .contact { font-size:0.8rem; bottom:20px; }
     }
   </style>
 </head>
@@ -91,22 +93,19 @@
     <div class="message">Good Morning<br>Sunshine!☀️</div>
   </div>
 
-  <!-- Small contact text -->
-  <div class="contact">Contact: wesley@gmbella.com</div>
+  <!-- Contact link (mailto) -->
+  <a href="mailto:wesley@gmbella.com" class="contact">Contact: wesley@gmbella.com</a>
 
   <!-- Audio element (hidden) -->
   <audio id="sunshineAudio" src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" preload="auto"></audio>
 
   <script>
     function openShade() {
-      // Open the shade
       document.querySelector('.shade').classList.add('open');
       document.querySelector('.tap-button').style.display='none';
       
-      // Play the music
-      document.getElementById('sunshineAudio').play().catch(e => console.log("Audio play failed (user may need to interact first on some devices)", e));
+      document.getElementById('sunshineAudio').play().catch(e => console.log("Audio play failed", e));
       
-      // Show main message
       setTimeout(() => {
         document.querySelector('.message').classList.add('show');
         document.querySelector('.contact').classList.add('show');
