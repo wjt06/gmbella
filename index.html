@@ -93,13 +93,12 @@
 
   <a href="mailto:wesley@gmbella.com" class="contact">Contact: wesley@gmbella.com</a>
 
-  <!-- Audio - loops forever on every device -->
-  <audio 
-    id="sunshineAudio" 
-    src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" 
-    preload="auto" 
-    loop>
-  </audio>
+  <!-- Preload background image instantly -->
+  <link rel="preload" href="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" as="image">
+  <img src="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" alt="" style="display:none;">
+
+  <!-- Audio - loops forever -->
+  <audio id="sunshineAudio" src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" preload="auto" loop></audio>
 
   <script>
     function openShade() {
@@ -108,8 +107,6 @@
       
       const audio = document.getElementById('sunshineAudio');
       audio.play().catch(e => console.log("Play failed:", e));
-      
-      // Super-safe fallback in case any browser ignores the loop attribute
       audio.addEventListener('ended', () => audio.play());
 
       setTimeout(() => {
