@@ -24,12 +24,26 @@
     }
     
     .message {
-      opacity:0; color:white; font-size:4rem; font-weight:300;
-      text-align:center; text-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      letter-spacing:2px; transition: opacity 2s 1s;
+      opacity:0;
+      color:white;
+      font-size:4rem;
+      font-weight:500;  /* a bit bolder than 300 */
+      text-align:center;
+      letter-spacing:2px;
+      transition: opacity 2s 1s;
       padding:0 20px;
-    }
-    .message.show { opacity:1; }
+  
+      /* Warm subtle glow (outer glow) */
+      text-shadow: 
+        0 0 20px rgba(255, 255, 255, 0.8),
+        0 0 40px rgba(255, 220, 150, 0.6),  /* soft golden tint */
+    
+        /* Dark shadow for contrast against bright sky */
+        0 4px 20px rgba(0, 0, 0, 0.6),
+        0 8px 40px rgba(0, 0, 0, 0.4);
+      }
+
+.message.show { opacity:1; }
     
     .tap-button {
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
