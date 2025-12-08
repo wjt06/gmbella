@@ -41,7 +41,6 @@
     }
     .message.show { opacity:1; }
 
-    /* Smaller contact text + mailto link */
     .contact {
       opacity:0;
       position:fixed;
@@ -49,19 +48,18 @@
       left:50%;
       transform:translateX(-50%);
       color:white;
-      font-size:0.85rem;  /* smaller and more subtle */
+      font-size:0.85rem;
       font-weight:400;
       letter-spacing:1px;
       text-align:center;
       text-decoration:none;
       transition: opacity 2s 1.5s;
-      
       text-shadow: 
         0 0 10px rgba(255, 255, 255, 0.8),
         0 2px 10px rgba(0, 0, 0, 0.6);
     }
     .contact.show { opacity:1; }
-    .contact:hover { opacity:0.9; }  /* tiny feedback on desktop */
+    .contact:hover { opacity:0.9; }
     
     .tap-button {
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -93,19 +91,27 @@
     <div class="message">Good Morning<br>Sunshine!☀️</div>
   </div>
 
-  <!-- Contact link (mailto) -->
   <a href="mailto:wesley@gmbella.com" class="contact">Contact: wesley@gmbella.com</a>
 
-  <!-- Audio element (hidden) -->
-  <audio id="sunshineAudio" src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" preload="auto"></audio>
+  <!-- Audio - loops forever on every device -->
+  <audio 
+    id="sunshineAudio" 
+    src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" 
+    preload="auto" 
+    loop>
+  </audio>
 
   <script>
     function openShade() {
       document.querySelector('.shade').classList.add('open');
       document.querySelector('.tap-button').style.display='none';
       
-      document.getElementById('sunshineAudio').play().catch(e => console.log("Audio play failed", e));
+      const audio = document.getElementById('sunshineAudio');
+      audio.play().catch(e => console.log("Play failed:", e));
       
+      // Super-safe fallback in case any browser ignores the loop attribute
+      audio.addEventListener('ended', () => audio.play());
+
       setTimeout(() => {
         document.querySelector('.message').classList.add('show');
         document.querySelector('.contact').classList.add('show');
