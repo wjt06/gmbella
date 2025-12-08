@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Morning Sunshine</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { height:100%; overflow:hidden; font-family:'Segoe UI', sans-serif; }
+    
+    .shade {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:#000; z-index:10;
+      transition: transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(0);
+    }
+    .shade.open { transform: translateY(-100%); }
+    
+    .background {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background: url('https://github.com/wjt06/gmbella/blob/main/Untitled.png') center/cover no-repeat;
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column;
+    }
+    
+    .message {
+      opacity:0; color:white; font-size:4rem; font-weight:300;
+      text-align:center; text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      letter-spacing:2px; transition: opacity 2s 1s;
+      padding:0 20px;
+    }
+    .message.show { opacity:1; }
+    
+    .tap-button {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      z-index:20; padding:20px 40px; font-size:1.8rem;
+      background:transparent; color:white; border:3px solid white;
+      border-radius:50px; cursor:pointer; transition:all 0.3s;
+      animation: pulse 3s infinite;
+    }
+    .tap-button:hover { background:rgba(255,255,255,0.1); }
+    
+    @keyframes pulse {
+      0% { box-shadow:0 0 0 0 rgba(255,255,255,0.7); }
+      70% { box-shadow:0 0 0 20px rgba(255,255,255,0); }
+      100% { box-shadow:0 0 0 0 rgba(255,255,255,0); }
+    }
+    
+    @media (max-width:768px) {
+      .message { font-size:2.8rem; }
+      .tap-button { font-size:1.5rem; padding:18px 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shade"></div>
+  <div class="tap-button" onclick="openShade()">Tap me ♡</div>
+  
+  <div class="background">
+    <div class="message">Good Morning<br>Sunshine!☀️</div>
+  </div>
+
+  <script>
+    function openShade() {
+      document.querySelector('.shade').classList.add('open');
+      document.querySelector('.tap-button').style.display='none';
+      setTimeout(() => {
+        document.querySelector('.message').classList.add('show');
+      }, 800);
+    }
+  </script>
+</body>
+</html>
