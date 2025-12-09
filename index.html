@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Morning Sunshine ☀️</title>
+  <meta name="description" content="A little ray of sunshine just for you">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { height:100%; overflow:hidden; font-family:'Segoe UI', Tahoma, sans-serif; background:#000; }
+    
+    .shade {
+      position:fixed; inset:0; background:#000; z-index:10;
+      transition: transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(0);
+    }
+    .shade.open { transform: translateY(-100%); }
+    
+    .background {
+      position:fixed; inset:0;
+      background: url('https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png') center/cover no-repeat;
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column;
+    }
+    
+    .message {
+      opacity:0; color:white; font-size:4rem; font-weight:500;
+      text-align:center; letter-spacing:2px; padding:0 20px;
+      transition: opacity 2s 1s;
+      text-shadow: 
+        0 0 20px rgba(255,255,255,1),
+        0 0 40px rgba(255,200,100,0.8),
+        0 4px 20px rgba(255,180,80,0.8),
+        0 8px 40px rgba(0,0,0,0.6);
+    }
+    .message.show { opacity:1; }
 
+    .contact {
+      opacity:0; position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+      color:white; font-size:0.85rem; letter-spacing:1px; text-decoration:none;
+      transition: opacity 2s 1.8s;
+      text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 2px 10px rgba(0,0,0,0.6);
+    }
+    .contact.show { opacity:1; }
+    .contact:hover { opacity:0.85; }
+    
+    .tap-button {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      z-index:20; padding:20px 45px; font-size:1.8rem;
+      background:transparent; color:white; border:3px solid white;
+      border-radius:50px; cursor:pointer; transition:all 0.3s;
+      animation: pulse 3s infinite;
+      user-select:none;
+    }
+    .tap-button:hover { background:rgba(255,255,255,0.15); }
+    .tap-button:active { transform:translate(-50%,-50%) scale(0.95); }
+    
+    @keyframes pulse {
+      0%   { box-shadow:0 0 0 0 rgba(255,255,255,0.7); }
+      70%  { box-shadow:0 0 0 25px rgba(255,255,255,0); }
+      100% { box-shadow:0 0 0 0 rgba(255,255,255,0); }
+    }
+    
+    @media (max-width:768px) {
+      .message { font-size:2.8rem; }
+      .tap-button { font-size:1.5rem; padding:18px 36px; }
+      .contact { font-size:0.8rem; bottom:20px; }
+    }
+    @media (max-width:480px) {
+      .message { font-size:2.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shade"></div>
+  <button class="tap-button" onclick="openShade()" aria-label="Reveal message">Tap me ♡</button>
+  
+  <div class="background">
+    <div class="message">Good Morning<br>Sunshine!☀️</div>
+  </div>
+
+  <a href="mailto:wesley@gmbella.com" class="contact">Contact: wesley@gmbella.com</a>
+
+  <!-- Preload image + audio -->
+  <link rel="preload" href="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" as="image">
+  <link rel="preload" href="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" as="audio">
+  <img src="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" alt="" aria-hidden="true" style="display:none;">
+
+  <audio id="sunshineAudio" preload="auto" loop>
+    <source src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    function openShade() {
+      document.querySelector('.shade').classList.add('open');
+      document.querySelector('.tap-button').style.display = 'none';
+
+      const audio = document.getElementById('sunshineAudio');
+      
+      // Many browsers block autoplay until user interaction — this click satisfies that
+      audio.play().catch(e => console.log("Audio play failed:", e));
+
+      setTimeout(() => {
+        document.querySelector('.message').classList.add('show');
+        document.querySelector('.contact').classList.add('show');
+      }, 800);
+    }
+
+    // Optional: allow spacebar or Enter to activate on keyboard too
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.querySelector('.tap-button')) {
+        e.preventDefault();
+        openShade();
+      }
+    });
+  </script>
+</body>
+</html>
