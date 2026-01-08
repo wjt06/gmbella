@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel QT v10</title>
+    <title>Aesthetic Jewel QT v11</title>
     <style>
-        /* This section stops the blue highlighting and text selection */
+        /* Prevents blue highlighting and selection on iOS */
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -16,18 +16,26 @@
             margin: 0; 
             overflow: hidden; 
             background: #fff5f8; 
-            touch-action: none; /* Stops the browser from scrolling while holding */
+            touch-action: none; 
         }
         #ui {
-            position: absolute; bottom: 60px; width: 100%; text-align: center;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            color: #ff1493; font-weight: 300; letter-spacing: 4px; pointer-events: none;
-            text-transform: uppercase; font-size: 10px; opacity: 0.7;
+            position: absolute; 
+            bottom: 60px; 
+            width: 100%; 
+            text-align: center;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif; 
+            color: #ff1493; 
+            font-weight: 300; 
+            letter-spacing: 4px; 
+            pointer-events: none;
+            font-size: 14px; 
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div id="ui">PRESS AND HOLD TO REVEAL</div>
+    <div id="ui">长按开启惊喜</div>
+
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -37,9 +45,8 @@
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xfff5f8);
         
-        // Detect if mobile
         const isMobile = window.innerWidth < 600;
-        const scaleFactor = isMobile ? 0.6 : 1.0; // Shrink the letters for mobile
+        const scaleFactor = isMobile ? 0.6 : 1.0; 
 
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -57,21 +64,15 @@
         const jewelGeo = new THREE.OctahedronGeometry(0.15, 0); 
         const colors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
 
-        // --- QT Points with Mobile Scaling ---
         const qtPoints = [];
-        const xOffset = isMobile ? 1.2 : 2.2; // Bring Q closer to center on mobile
+        const xOffset = isMobile ? 1.2 : 2.2; 
         
-        // Q Circle
         for(let i=0; i<45; i++){
             let a = (i/45) * Math.PI * 2;
             qtPoints.push({x: (Math.cos(a)*1.8 - xOffset) * scaleFactor, y: Math.sin(a)*1.8 * scaleFactor});
         }
-        // Q Tail
         for(let i=0; i<6; i++) qtPoints.push({x: (-1.0 + i*0.16 - (isMobile ? 0 : 1)) * scaleFactor, y: (-1.0 - i*0.16) * scaleFactor});
-        
-        // T Top Bar
         for(let i=0; i<18; i++) qtPoints.push({x: (0.5 + i*0.2) * scaleFactor, y: 1.8 * scaleFactor});
-        // T Stem
         for(let i=0; i<18; i++) qtPoints.push({x: (2.2 * scaleFactor), y: (1.8 - i*0.2) * scaleFactor});
 
         const objects = [];
@@ -93,13 +94,13 @@
             objects.push({ mesh, startP, destP });
         }
 
-        camera.position.z = isMobile ? 16 : 13; // Move camera back further on mobile
+        camera.position.z = isMobile ? 16 : 13; 
 
         let isHolding = false;
 
-        window.addEventListener('pointerdown', (e) => {
+        window.addEventListener('pointerdown', () => {
             isHolding = true;
-            if (window.navigator.vibrate) window.navigator.vibrate(10); // Subtle haptic
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
         });
 
         window.addEventListener('pointerup', () => isHolding = false);
