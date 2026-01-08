@@ -1,118 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Good Morning Sunshine ☀️</title>
-  <meta name="description" content="Reminder: You are amazing">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body, html { height:100%; overflow:hidden; font-family:'Segoe UI', Tahoma, sans-serif; background:#000; }
-    
-    .shade {
-      position:fixed; inset:0; background:#000; z-index:10;
-      transition: transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
-      transform: translateY(0);
-    }
-    .shade.open { transform: translateY(-100%); }
-    
-    .background {
-      position:fixed; inset:0;
-      background: url('https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png') center/cover no-repeat;
-      display:flex; align-items:center; justify-content:center;
-      flex-direction:column;
-    }
-    
-    .message {
-      opacity:0; color:white; font-size:4rem; font-weight:500;
-      text-align:center; letter-spacing:2px; padding:0 20px;
-      transition: opacity 2s 1s;
-      text-shadow: 
-        0 0 20px rgba(255,255,255,1),
-        0 0 40px rgba(255,200,100,0.8),
-        0 4px 20px rgba(255,180,80,0.8),
-        0 8px 40px rgba(0,0,0,0.6);
-    }
-    .message.show { opacity:1; }
-
-    .contact {
-      opacity:0; position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
-      color:white; font-size:0.85rem; letter-spacing:1px; text-decoration:none;
-      transition: opacity 2s 1.8s;
-      text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 2px 10px rgba(0,0,0,0.6);
-    }
-    .contact.show { opacity:1; }
-    .contact:hover { opacity:0.85; }
-    
-    .tap-button {
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:20; padding:20px 45px; font-size:1.8rem;
-      background:transparent; color:white; border:3px solid white;
-      border-radius:50px; cursor:pointer; transition:all 0.3s;
-      animation: pulse 3s infinite;
-      user-select:none;
-    }
-    .tap-button:hover { background:rgba(255,255,255,0.15); }
-    .tap-button:active { transform:translate(-50%,-50%) scale(0.95); }
-    
-    @keyframes pulse {
-      0%   { box-shadow:0 0 0 0 rgba(255,255,255,0.7); }
-      70%  { box-shadow:0 0 0 25px rgba(255,255,255,0); }
-      100% { box-shadow:0 0 0 0 rgba(255,255,255,0); }
-    }
-    
-    @media (max-width:768px) {
-      .message { font-size:2.8rem; }
-      .tap-button { font-size:1.5rem; padding:18px 36px; }
-      .contact { font-size:0.8rem; bottom:20px; }
-    }
-    @media (max-width:480px) {
-      .message { font-size:2.3rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Aesthetic Jewel QT v8 - Visible Sparkles</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #fff5f8; cursor: pointer; }
+        #ui {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            color: #ff1493; font-weight: 300; letter-spacing: 5px; pointer-events: none;
+            text-transform: uppercase; font-size: 11px; opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-  <div class="shade"></div>
-  <button class="tap-button" onclick="openShade()" aria-label="Reveal message">Tap me ♡</button>
-  
-  <div class="background">
-    <div class="message">Good Morning<br>Sunshine!☀️</div>
-  </div>
+    <div id="ui">Click to crystallize</div>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
 
-  <a href="mailto:wesley@gmbella.com" class="contact">Contact: wesley@gmbella.com</a>
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xfff5f8);
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.3;
+        document.body.appendChild(renderer.domElement);
 
-  <!-- Preload image + audio -->
-  <link rel="preload" href="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" as="image">
-  <link rel="preload" href="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" as="audio">
-  <img src="https://raw.githubusercontent.com/wjt06/gmbella/main/Untitled.png" alt="" aria-hidden="true" style="display:none;">
+        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        const topLight = new THREE.DirectionalLight(0xffffff, 2.5);
+        topLight.position.set(5, 10, 5);
+        scene.add(topLight);
 
-  <audio id="sunshineAudio" preload="auto" loop>
-    <source src="https://raw.githubusercontent.com/wjt06/gmbella/main/Sunshine.mp3" type="audio/mpeg">
-  </audio>
+        const jewelGeo = new THREE.OctahedronGeometry(0.15, 0); 
+        const colors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
 
-  <script>
-    function openShade() {
-      document.querySelector('.shade').classList.add('open');
-      document.querySelector('.tap-button').style.display = 'none';
+        const qtPoints = [];
+        for(let i=0; i<45; i++){
+            let a = (i/45) * Math.PI * 2;
+            qtPoints.push({x: Math.cos(a)*1.8 - 2.2, y: Math.sin(a)*1.8});
+        }
+        for(let i=0; i<6; i++) qtPoints.push({x: -1.0 + i*0.16, y: -1.0 - i*0.16});
+        for(let i=0; i<18; i++) qtPoints.push({x: 0.8 + i*0.2, y: 1.8});
+        for(let i=0; i<18; i++) qtPoints.push({x: 2.5, y: 1.8 - i*0.2});
 
-      const audio = document.getElementById('sunshineAudio');
-      
-      // Many browsers block autoplay until user interaction — this click satisfies that
-      audio.play().catch(e => console.log("Audio play failed:", e));
+        const objects = [];
+        const count = 420; 
 
-      setTimeout(() => {
-        document.querySelector('.message').classList.add('show');
-        document.querySelector('.contact').classList.add('show');
-      }, 800);
-    }
+        for (let i = 0; i < count; i++) {
+            const mat = new THREE.MeshPhysicalMaterial({
+                color: colors[i % colors.length],
+                metalness: 0.1, roughness: 0.02, transmission: 0.4,
+                thickness: 1.0, ior: 1.5, clearcoat: 1.0
+            });
+            const mesh = new THREE.Mesh(jewelGeo, mat);
+            const startP = new THREE.Vector3((Math.random()-0.5)*4.5, -3.2 + Math.random(), (Math.random()-0.5)*2);
+            mesh.position.copy(startP);
+            scene.add(mesh);
 
-    // Optional: allow spacebar or Enter to activate on keyboard too
-    document.addEventListener('keydown', e => {
-      if ((e.key === 'Enter' || e.key === ' ') && document.querySelector('.tap-button')) {
-        e.preventDefault();
-        openShade();
-      }
-    });
-  </script>
+            let destP = new THREE.Vector3();
+            if (i < qtPoints.length) {
+                destP.set(qtPoints[i].x, qtPoints[i].y, 0);
+            } else {
+                destP.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, -35);
+            }
+            objects.push({ mesh, startP, destP });
+        }
+
+        // --- ENHANCED SPARKLE SYSTEM ---
+        const sparkleCount = 200; // More sparkles
+        const sparkleGeo = new THREE.BufferGeometry();
+        const sparklePos = new Float32Array(sparkleCount * 3);
+        const sparkleVel = new Float32Array(sparkleCount * 3);
+        
+        sparkleGeo.setAttribute('position', new THREE.BufferAttribute(sparklePos, 3));
+        
+        const sparkleMat = new THREE.PointsMaterial({ 
+            color: 0xffffff, 
+            size: 0.18, // Larger
+            transparent: true, 
+            opacity: 0, 
+            blending: THREE.AdditiveBlending, // Glow effect
+            depthWrite: false
+        });
+        
+        const sparkles = new THREE.Points(sparkleGeo, sparkleMat);
+        scene.add(sparkles);
+
+        camera.position.z = 13;
+        let isQT = false;
+
+        window.addEventListener('click', () => {
+            isQT = !isQT;
+            if (isQT) {
+                sparkleMat.opacity = 1;
+                const posArr = sparkleGeo.attributes.position.array;
+                
+                for(let i=0; i<sparkleCount; i++) {
+                    // Pick a random QT point to burst from
+                    const refPoint = qtPoints[Math.floor(Math.random() * qtPoints.length)];
+                    posArr[i*3] = refPoint.x; 
+                    posArr[i*3+1] = refPoint.y;
+                    posArr[i*3+2] = (Math.random()-0.5) * 1;
+
+                    // Outward velocity
+                    sparkleVel[i*3] = (Math.random() - 0.5) * 0.15;
+                    sparkleVel[i*3+1] = (Math.random() - 0.5) * 0.15;
+                    sparkleVel[i*3+2] = (Math.random() - 0.5) * 0.1;
+                }
+                sparkleGeo.attributes.position.needsUpdate = true;
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+
+            objects.forEach((obj, i) => {
+                obj.mesh.position.lerp(isQT ? obj.destP : obj.startP, 0.08);
+                obj.mesh.rotation.y += 0.02;
+            });
+
+            // Update Sparkles
+            if (sparkleMat.opacity > 0) {
+                sparkleMat.opacity -= 0.015; // Slower fade
+                const posArr = sparkleGeo.attributes.position.array;
+                for(let i=0; i<sparkleCount; i++) {
+                    posArr[i*3] += sparkleVel[i*3];
+                    posArr[i*3+1] += sparkleVel[i*3+1];
+                    posArr[i*3+2] += sparkleVel[i*3+2];
+                }
+                sparkleGeo.attributes.position.needsUpdate = true;
+            }
+
+            camera.position.x = Math.sin(time * 0.15) * 0.5;
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
