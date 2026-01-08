@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel QT v9 - Mobile Touch</title>
+    <title>Aesthetic Jewel QT v10</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #fff5f8; touch-action: none; }
+        /* This section stops the blue highlighting and text selection */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #fff5f8; 
+            touch-action: none; /* Stops the browser from scrolling while holding */
+        }
         #ui {
-            position: absolute; bottom: 40px; width: 100%; text-align: center;
+            position: absolute; bottom: 60px; width: 100%; text-align: center;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
             color: #ff1493; font-weight: 300; letter-spacing: 4px; pointer-events: none;
             text-transform: uppercase; font-size: 10px; opacity: 0.7;
@@ -24,6 +36,11 @@
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xfff5f8);
+        
+        // Detect if mobile
+        const isMobile = window.innerWidth < 600;
+        const scaleFactor = isMobile ? 0.6 : 1.0; // Shrink the letters for mobile
+
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -40,14 +57,22 @@
         const jewelGeo = new THREE.OctahedronGeometry(0.15, 0); 
         const colors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
 
+        // --- QT Points with Mobile Scaling ---
         const qtPoints = [];
+        const xOffset = isMobile ? 1.2 : 2.2; // Bring Q closer to center on mobile
+        
+        // Q Circle
         for(let i=0; i<45; i++){
             let a = (i/45) * Math.PI * 2;
-            qtPoints.push({x: Math.cos(a)*1.8 - 2.2, y: Math.sin(a)*1.8});
+            qtPoints.push({x: (Math.cos(a)*1.8 - xOffset) * scaleFactor, y: Math.sin(a)*1.8 * scaleFactor});
         }
-        for(let i=0; i<6; i++) qtPoints.push({x: -1.0 + i*0.16, y: -1.0 - i*0.16});
-        for(let i=0; i<18; i++) qtPoints.push({x: 0.8 + i*0.2, y: 1.8});
-        for(let i=0; i<18; i++) qtPoints.push({x: 2.5, y: 1.8 - i*0.2});
+        // Q Tail
+        for(let i=0; i<6; i++) qtPoints.push({x: (-1.0 + i*0.16 - (isMobile ? 0 : 1)) * scaleFactor, y: (-1.0 - i*0.16) * scaleFactor});
+        
+        // T Top Bar
+        for(let i=0; i<18; i++) qtPoints.push({x: (0.5 + i*0.2) * scaleFactor, y: 1.8 * scaleFactor});
+        // T Stem
+        for(let i=0; i<18; i++) qtPoints.push({x: (2.2 * scaleFactor), y: (1.8 - i*0.2) * scaleFactor});
 
         const objects = [];
         for (let i = 0; i < 420; i++) {
@@ -57,43 +82,24 @@
                 thickness: 1.0, ior: 1.5, clearcoat: 1.0
             });
             const mesh = new THREE.Mesh(jewelGeo, mat);
-            const startP = new THREE.Vector3((Math.random()-0.5)*4.5, -3.2 + Math.random(), (Math.random()-0.5)*2);
+            const startP = new THREE.Vector3((Math.random()-0.5)*4, -3.5 + Math.random(), (Math.random()-0.5)*2);
             mesh.position.copy(startP);
             scene.add(mesh);
             
             let destP = new THREE.Vector3();
             if (i < qtPoints.length) destP.set(qtPoints[i].x, qtPoints[i].y, 0);
-            else destP.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, -35);
+            else destP.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, -40);
             
             objects.push({ mesh, startP, destP });
         }
 
-        // --- Sparkle System ---
-        const sparkleCount = 150;
-        const sparkleGeo = new THREE.BufferGeometry();
-        const sparklePos = new Float32Array(sparkleCount * 3);
-        const sparkleVel = new Float32Array(sparkleCount * 3);
-        sparkleGeo.setAttribute('position', new THREE.BufferAttribute(sparklePos, 3));
-        const sparkleMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
-        const sparkles = new THREE.Points(sparkleGeo, sparkleMat);
-        scene.add(sparkles);
+        camera.position.z = isMobile ? 16 : 13; // Move camera back further on mobile
 
-        camera.position.z = 13;
         let isHolding = false;
 
-        // --- MOBILE FIX: Pointer Events ---
         window.addEventListener('pointerdown', (e) => {
             isHolding = true;
-            sparkleMat.opacity = 1;
-            const posArr = sparkleGeo.attributes.position.array;
-            for(let i=0; i<sparkleCount; i++) {
-                const ref = qtPoints[Math.floor(Math.random() * qtPoints.length)];
-                posArr[i*3] = ref.x; posArr[i*3+1] = ref.y; posArr[i*3+2] = (Math.random()-0.5);
-                sparkleVel[i*3] = (Math.random()-0.5)*0.2; 
-                sparkleVel[i*3+1] = (Math.random()-0.5)*0.2;
-                sparkleVel[i*3+2] = (Math.random()-0.5)*0.1;
-            }
-            sparkleGeo.attributes.position.needsUpdate = true;
+            if (window.navigator.vibrate) window.navigator.vibrate(10); // Subtle haptic
         });
 
         window.addEventListener('pointerup', () => isHolding = false);
@@ -106,16 +112,7 @@
                 obj.mesh.position.lerp(isHolding ? obj.destP : obj.startP, 0.08);
                 obj.mesh.rotation.y += 0.02;
             });
-            if (sparkleMat.opacity > 0) {
-                sparkleMat.opacity -= 0.02;
-                const posArr = sparkleGeo.attributes.position.array;
-                for(let i=0; i<sparkleCount; i++) {
-                    posArr[i*3] += sparkleVel[i*3];
-                    posArr[i*3+1] += sparkleVel[i*3+1];
-                }
-                sparkleGeo.attributes.position.needsUpdate = true;
-            }
-            camera.position.x = Math.sin(time * 0.15) * 0.5;
+            camera.position.x = Math.sin(time * 0.15) * 0.4;
             camera.lookAt(0, 0, 0);
             renderer.render(scene, camera);
         }
