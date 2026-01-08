@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel Triple v16</title>
+    <title>Aesthetic Jewel Triple v17</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -15,25 +15,57 @@
             margin: 0; 
             overflow: hidden; 
             background: #fff5f8; 
+            transition: background 0.8s ease;
             touch-action: none; 
         }
-        #ui {
+        #ui-container {
             position: absolute; 
-            bottom: 60px; 
+            bottom: 50px; 
             width: 100%; 
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
             font-family: "PingFang SC", "STHeiti", "Microsoft YaHei", sans-serif; 
-            color: #ff1493; 
-            font-weight: 300; 
-            letter-spacing: 4px; 
             pointer-events: none;
+            z-index: 10;
+        }
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 20px;
+            font-weight: 200;
+        }
+        .nav-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.4); }
+        
+        #ui-text {
+            text-align: center;
+            font-weight: 300; 
+            letter-spacing: 3px; 
             font-size: 14px; 
             opacity: 0.8;
+            min-width: 180px;
         }
+
+        .theme-pink { color: #ff1493; }
+        .theme-gold { color: #ffab00; }
     </style>
 </head>
 <body>
-    <div id="ui">长按开启惊喜</div>
+    <div id="ui-container" class="theme-pink">
+        <div class="nav-btn" id="prevBtn">‹</div>
+        <div id="ui-text">长按开启惊喜</div>
+        <div class="nav-btn" id="nextBtn">›</div>
+    </div>
 
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
@@ -52,54 +84,70 @@
         renderer.toneMappingExposure = 1.3;
         document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        // --- LIGHTS ---
+        const amb = new THREE.AmbientLight(0xffffff, 1.8);
+        scene.add(amb);
+        const sunLight = new THREE.PointLight(0xfff700, 0, 30);
+        scene.add(sunLight);
         const topLight = new THREE.DirectionalLight(0xffffff, 2.5);
         topLight.position.set(5, 10, 5);
         scene.add(topLight);
 
-        const jewelGeo = new THREE.OctahedronGeometry(0.15, 0); 
-        const colors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
+        // --- STATE ---
+        let currentMode = 0; // 0: Jewel Shapes, 1: Sunshine Mode
+        let isHolding = false;
+        let currentPattern = 0;
+        let sunshineTime = 0;
+        let targetPos = new THREE.Vector3(0, 0, 0);
 
+        // --- ASSETS ---
+        const jewelGeo = new THREE.OctahedronGeometry(0.15, 0);
+        const jewelIcoGeo = new THREE.IcosahedronGeometry(0.18, 0);
+        const pinkColors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
+        const goldColors = [0xffff00, 0xffd700, 0xffaa00, 0xffffff];
+
+        // Prepare Pattern Logic
         const patterns = [];
-
-        // 1. QT - Shifted Left by ~0.15 units (one jewel width)
+        const qOffset = (isMobile ? 1.0 : 1.8) + 0.15;
         const qt = [];
-        // qOffset increased by 0.15 to shift the Q left
-        const qOffset = (isMobile ? 1.0 : 1.8) + 0.15; 
         for(let i=0; i<50; i++) { let a = (i/50)*Math.PI*2; qt.push({x: Math.cos(a)*1.6 - qOffset, y: Math.sin(a)*1.6}); }
         for(let i=0; i<8; i++) qt.push({x: (-qOffset + 0.8) + i*0.15, y: -0.8 - i*0.15});
-        // T starting X decreased by 0.15 to shift the T left
         const tStartX = 0.5 - 0.15;
         for(let i=0; i<18; i++) qt.push({x: tStartX + i*0.2, y: 1.6});
         for(let i=0; i<18; i++) qt.push({x: tStartX + 1.7, y: 1.6 - i*0.2});
         patterns.push(qt);
 
-        // 2. 🙂 (Centered)
         const smile = [];
         for(let i=0; i<45; i++) { let a = (i/45)*Math.PI*2; smile.push({x: Math.cos(a)*2.2, y: Math.sin(a)*2.2}); }
         smile.push({x: -0.8, y: 0.7}, {x: 0.8, y: 0.7});
         for(let i=0; i<20; i++) { let a = Math.PI + 0.4 + (i/20)*(Math.PI - 0.8); smile.push({x: Math.cos(a)*1.3, y: Math.sin(a)*0.9 - 0.1}); }
         patterns.push(smile);
 
-        // 3. 🌹 (Centered)
         const rose = [];
-        for(let i=0; i<40; i++) { 
-            let a = (i/40)*Math.PI*2; 
-            let r = 0.8 + Math.cos(a*5)*0.3; 
-            rose.push({x: Math.cos(a)*r, y: Math.sin(a)*r + 1.2}); 
-        }
+        for(let i=0; i<40; i++) { let a = (i/40)*Math.PI*2; let r = 0.8 + Math.cos(a*5)*0.3; rose.push({x: Math.cos(a)*r, y: Math.sin(a)*r + 1.2}); }
         for(let i=0; i<18; i++) rose.push({x: 0, y: 0.8 - i*0.25});
         rose.push({x: 0.3, y: -0.5}, {x: -0.3, y: -1.2});
         patterns.push(rose);
 
+        // --- OBJECTS ---
         const objects = [];
         for (let i = 0; i < 420; i++) {
-            const mat = new THREE.MeshPhysicalMaterial({ color: colors[i % colors.length], metalness: 0.1, roughness: 0.02, transmission: 0.4, thickness: 1.0, ior: 1.5, clearcoat: 1.0 });
+            const mat = new THREE.MeshPhysicalMaterial({ 
+                color: pinkColors[i % pinkColors.length], 
+                metalness: 0.1, roughness: 0.02, transmission: 0.4, thickness: 1.0, ior: 1.5, clearcoat: 1.0 
+            });
             const mesh = new THREE.Mesh(jewelGeo, mat);
             const startP = new THREE.Vector3((Math.random()-0.5)*4.5, -3.5 + Math.random(), (Math.random()-0.5)*2);
             mesh.position.copy(startP);
             scene.add(mesh);
-            objects.push({ mesh, startP, targets: [] });
+            objects.push({ 
+                mesh, 
+                startP, 
+                targets: [], 
+                velocity: new THREE.Vector3(),
+                noiseOffset: Math.random() * 1000,
+                freq: 0.8 + Math.random() * 1.2
+            });
         }
 
         patterns.forEach((pts) => {
@@ -112,30 +160,121 @@
             });
         });
 
-        camera.position.z = isMobile ? 15 : 13; 
-        let isHolding = false;
-        let currentPattern = 0;
+        // --- SUN GROUP ---
+        const sunGroup = new THREE.Group();
+        sunGroup.visible = false;
+        scene.add(sunGroup);
+        const sunSphere = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffea00, emissiveIntensity: 1.2 }));
+        sunGroup.add(sunSphere);
+        const faceMat = new THREE.MeshBasicMaterial({ color: 0xfffdf0 });
+        const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), faceMat);
+        eyeL.position.set(-0.25, 0.2, 0.85); sunGroup.add(eyeL);
+        const eyeR = eyeL.clone(); eyeR.position.set(0.25, 0.2, 0.85); sunGroup.add(eyeR);
+        const smileMesh = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.04, 12, 20, Math.PI), faceMat);
+        smileMesh.position.set(0, -0.05, 0.82); smileMesh.rotation.x = Math.PI * 0.95; sunGroup.add(smileMesh);
 
-        window.addEventListener('pointerdown', () => {
+        // --- THEME SWAP ---
+        const updateMode = () => {
+            const ui = document.getElementById('ui-container');
+            const txt = document.getElementById('ui-text');
+            if (currentMode === 0) {
+                scene.background.set(0xfff5f8);
+                ui.className = 'theme-pink';
+                txt.innerText = '长按开启惊喜';
+                sunGroup.visible = false;
+                sunLight.intensity = 0;
+                objects.forEach((obj, i) => {
+                    obj.mesh.geometry = jewelGeo;
+                    obj.mesh.material.color.set(pinkColors[i % pinkColors.length]);
+                    obj.mesh.material.emissiveIntensity = 0;
+                });
+            } else {
+                scene.background.set(0xfffdf5);
+                ui.className = 'theme-gold';
+                txt.innerText = '阳光模式：拖动与旋转';
+                sunGroup.visible = true;
+                objects.forEach((obj, i) => {
+                    obj.mesh.geometry = jewelIcoGeo;
+                    const c = goldColors[i % goldColors.length];
+                    obj.mesh.material.color.set(c);
+                    obj.mesh.material.emissive.set(c);
+                    obj.mesh.material.emissiveIntensity = 0.5;
+                });
+            }
+        };
+
+        // --- INPUTS ---
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('.nav-btn')) return;
             isHolding = true;
             if (window.navigator.vibrate) window.navigator.vibrate(10);
         });
-
         window.addEventListener('pointerup', () => {
+            if (!isHolding) return;
             isHolding = false;
-            currentPattern = (currentPattern + 1) % patterns.length;
+            if (currentMode === 0) currentPattern = (currentPattern + 1) % patterns.length;
+        });
+        window.addEventListener('pointermove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 2 - 1;
+            const y = -(e.clientY / window.innerHeight) * 2 + 1;
+            targetPos.set(x * 7.5, y * 5.5, 0);
         });
 
-        window.addEventListener('pointercancel', () => isHolding = false);
+        document.getElementById('prevBtn').onclick = () => { currentMode = (currentMode + 1) % 2; updateMode(); };
+        document.getElementById('nextBtn').onclick = () => { currentMode = (currentMode + 1) % 2; updateMode(); };
+
+        // --- LOOP ---
+        camera.position.z = isMobile ? 15 : 13;
 
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
-            objects.forEach((obj) => {
-                const dest = isHolding ? obj.targets[currentPattern] : obj.startP;
-                obj.mesh.position.lerp(dest, 0.09);
-                obj.mesh.rotation.y += 0.02;
-            });
+
+            if (currentMode === 0) {
+                objects.forEach((obj) => {
+                    const dest = isHolding ? obj.targets[currentPattern] : obj.startP;
+                    obj.mesh.position.lerp(dest, 0.09);
+                    obj.mesh.rotation.y += 0.02;
+                    obj.velocity.set(0,0,0); // Reset velocity for clean mode swap
+                });
+            } else {
+                sunshineTime += 0.008;
+                sunGroup.position.lerp(targetPos, 0.1);
+                sunLight.position.copy(sunGroup.position);
+                sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, isHolding ? 30 : 15, 0.1);
+                sunSphere.scale.lerp(new THREE.Vector3().setScalar(isHolding ? 1.15 : 1.0), 0.1);
+
+                objects.forEach((j) => {
+                    if (isHolding) {
+                        const visibleTarget = sunGroup.position.clone().add(new THREE.Vector3(0, 0, 1.2));
+                        const dir = new THREE.Vector3().subVectors(visibleTarget, j.mesh.position);
+                        const dist = dir.length();
+                        dir.normalize();
+                        j.velocity.add(dir.clone().multiplyScalar((15 - dist) * 0.015));
+                        j.velocity.add(new THREE.Vector3(-dir.y, dir.x, 0).multiplyScalar(0.05));
+                        if(dist < 3.0) j.velocity.add(dir.clone().multiplyScalar(-0.08));
+                    } else {
+                        const angle = (sunshineTime * j.freq) + j.noiseOffset;
+                        const radiusBuzz = 1.0 + Math.sin(sunshineTime * 0.5 + j.noiseOffset) * 0.3;
+                        const buzzX = Math.cos(angle) * radiusBuzz;
+                        const buzzY = Math.sin(angle) * radiusBuzz;
+                        const buzzTarget = sunGroup.position.clone().add(new THREE.Vector3(buzzX, buzzY, -0.6));
+                        
+                        const dir = new THREE.Vector3().subVectors(buzzTarget, j.mesh.position);
+                        const dist = dir.length();
+                        j.velocity.add(dir.normalize().multiplyScalar(Math.max(0, (12 - dist) * 0.008)));
+
+                        const cDir = new THREE.Vector3().subVectors(sunGroup.position, j.mesh.position);
+                        if(cDir.length() < 1.1) j.velocity.add(cDir.normalize().multiplyScalar(-0.015));
+                        if (j.mesh.position.z > sunGroup.position.z - 0.2) j.velocity.z -= 0.02;
+                    }
+                    j.velocity.multiplyScalar(0.92);
+                    j.mesh.position.add(j.velocity);
+                    j.mesh.rotation.x += 0.02;
+                    j.mesh.rotation.y += 0.02;
+                });
+            }
+
             camera.position.x = Math.sin(time * 0.15) * 0.4;
             camera.lookAt(0, 0, 0);
             renderer.render(scene, camera);
