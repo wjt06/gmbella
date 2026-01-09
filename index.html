@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel Triple v17</title>
+    <title>Aesthetic Jewel Triple v19</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -15,7 +15,7 @@
             margin: 0; 
             overflow: hidden; 
             background: #fff5f8; 
-            transition: background 0.8s ease;
+            transition: background 1.2s ease;
             touch-action: none; 
         }
         #ui-container {
@@ -58,6 +58,7 @@
 
         .theme-pink { color: #ff1493; }
         .theme-gold { color: #ffab00; }
+        .theme-night { color: #a0a0ff; text-shadow: 0 0 15px rgba(100, 100, 255, 0.6); }
     </style>
 </head>
 <body>
@@ -94,19 +95,34 @@
         scene.add(topLight);
 
         // --- STATE ---
-        let currentMode = 0; // 0: Jewel Shapes, 1: Sunshine Mode
+        let currentMode = 0; // 0, 1, 2
         let isHolding = false;
         let currentPattern = 0;
         let sunshineTime = 0;
         let targetPos = new THREE.Vector3(0, 0, 0);
 
-        // --- ASSETS ---
+        // --- TEXTURE HELPER ---
+        function createCircleTexture(color, size) {
+            const matCanvas = document.createElement('canvas');
+            matCanvas.width = size; matCanvas.height = size;
+            const matCtx = matCanvas.getContext('2d');
+            const center = size / 2;
+            const gradient = matCtx.createRadialGradient(center, center, 0, center, center, center);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(0.2, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(0.4, 'rgba(120, 150, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            matCtx.fillStyle = gradient;
+            matCtx.fillRect(0, 0, size, size);
+            return new THREE.CanvasTexture(matCanvas);
+        }
+
+        // --- JEWEL ASSETS (MODES 0 & 1) ---
         const jewelGeo = new THREE.OctahedronGeometry(0.15, 0);
         const jewelIcoGeo = new THREE.IcosahedronGeometry(0.18, 0);
         const pinkColors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xffc1cc, 0xfce4ec];
         const goldColors = [0xffff00, 0xffd700, 0xffaa00, 0xffffff];
 
-        // Prepare Pattern Logic
         const patterns = [];
         const qOffset = (isMobile ? 1.0 : 1.8) + 0.15;
         const qt = [];
@@ -129,25 +145,16 @@
         rose.push({x: 0.3, y: -0.5}, {x: -0.3, y: -1.2});
         patterns.push(rose);
 
-        // --- OBJECTS ---
         const objects = [];
         for (let i = 0; i < 420; i++) {
             const mat = new THREE.MeshPhysicalMaterial({ 
-                color: pinkColors[i % pinkColors.length], 
-                metalness: 0.1, roughness: 0.02, transmission: 0.4, thickness: 1.0, ior: 1.5, clearcoat: 1.0 
+                color: pinkColors[i % pinkColors.length], metalness: 0.1, roughness: 0.02, transmission: 0.4, thickness: 1.0, ior: 1.5, clearcoat: 1.0 
             });
             const mesh = new THREE.Mesh(jewelGeo, mat);
             const startP = new THREE.Vector3((Math.random()-0.5)*4.5, -3.5 + Math.random(), (Math.random()-0.5)*2);
             mesh.position.copy(startP);
             scene.add(mesh);
-            objects.push({ 
-                mesh, 
-                startP, 
-                targets: [], 
-                velocity: new THREE.Vector3(),
-                noiseOffset: Math.random() * 1000,
-                freq: 0.8 + Math.random() * 1.2
-            });
+            objects.push({ mesh, startP, targets: [], velocity: new THREE.Vector3(), noiseOffset: Math.random() * 1000, freq: 0.8 + Math.random() * 1.2 });
         }
 
         patterns.forEach((pts) => {
@@ -160,7 +167,7 @@
             });
         });
 
-        // --- SUN GROUP ---
+        // --- SUN GROUP (MODE 1) ---
         const sunGroup = new THREE.Group();
         sunGroup.visible = false;
         scene.add(sunGroup);
@@ -170,29 +177,93 @@
         const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), faceMat);
         eyeL.position.set(-0.25, 0.2, 0.85); sunGroup.add(eyeL);
         const eyeR = eyeL.clone(); eyeR.position.set(0.25, 0.2, 0.85); sunGroup.add(eyeR);
-        const smileMesh = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.04, 12, 20, Math.PI), faceMat);
-        smileMesh.position.set(0, -0.05, 0.82); smileMesh.rotation.x = Math.PI * 0.95; sunGroup.add(smileMesh);
+        const sunSmile = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.04, 12, 20, Math.PI), faceMat);
+        sunSmile.position.set(0, -0.05, 0.82); sunSmile.rotation.x = Math.PI * 0.95; sunGroup.add(sunSmile);
+
+        // --- NIGHT ASSETS (MODE 2) ---
+        const nightGroup = new THREE.Group();
+        nightGroup.visible = false;
+        scene.add(nightGroup);
+
+        const starCount = 1500;
+        const starGeo = new THREE.BufferGeometry();
+        const starPosArr = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount; i++) {
+            starPosArr[i*3] = (Math.random() - 0.5) * 60;
+            starPosArr[i*3+1] = (Math.random() - 0.5) * 40;
+            starPosArr[i*3+2] = (Math.random() - 0.8) * 20;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPosArr, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.12, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, map: createCircleTexture('#ffffff', 64) });
+        const stars = new THREE.Points(starGeo, starMat);
+        nightGroup.add(stars);
+
+        // Goodnight Text Generation (Smaller for Mobile & Starry Distribution)
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1024; canvas.height = 512;
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 240px serif'; // Smaller Font
+        ctx.textAlign = 'center';
+        ctx.fillText('晚安', 512, 330);
+        
+        const imageData = ctx.getImageData(0, 0, 1024, 512);
+        const textPointsArr = [];
+        for (let y = 0; y < 512; y += 4) {
+            for (let x = 0; x < 1024; x += 4) {
+                if (imageData.data[(y * 1024 + x) * 4] > 128) {
+                    // Added jitter to remove the grid look
+                    const jitter = 0.12;
+                    textPointsArr.push(
+                        (x - 512) / 85 + (Math.random()-0.5) * jitter, 
+                        -(y - 256) / 85 + (Math.random()-0.5) * jitter, 
+                        (Math.random()-0.5) * 0.2
+                    );
+                }
+            }
+        }
+        const textGeo = new THREE.BufferGeometry();
+        textGeo.setAttribute('position', new THREE.Float32BufferAttribute(textPointsArr, 3));
+        const textMat = new THREE.PointsMaterial({ color: 0xccddee, size: 0.045, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending });
+        const textMesh = new THREE.Points(textGeo, textMat);
+        nightGroup.add(textMesh);
+
+        // Night Burst Particles
+        const pCount = 1000; 
+        const pGeo = new THREE.BufferGeometry();
+        const pPos = new Float32Array(pCount * 3).fill(0);
+        const pVel = new Float32Array(pCount * 3).fill(0);
+        const pLife = new Float32Array(pCount).fill(0); 
+        const pColors = new Float32Array(pCount * 3).fill(1);
+        pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+        pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+        const pMat = new THREE.PointsMaterial({ size: 0.18, transparent: true, blending: THREE.AdditiveBlending, vertexColors: true, map: createCircleTexture('#ffffff', 64), depthWrite: false });
+        const nightParticles = new THREE.Points(pGeo, pMat);
+        nightGroup.add(nightParticles);
+        let pIndex = 0;
 
         // --- THEME SWAP ---
         const updateMode = () => {
             const ui = document.getElementById('ui-container');
             const txt = document.getElementById('ui-text');
+            sunGroup.visible = (currentMode === 1);
+            nightGroup.visible = (currentMode === 2);
+            objects.forEach(obj => obj.mesh.visible = (currentMode !== 2));
+
             if (currentMode === 0) {
                 scene.background.set(0xfff5f8);
                 ui.className = 'theme-pink';
                 txt.innerText = '长按开启惊喜';
-                sunGroup.visible = false;
                 sunLight.intensity = 0;
                 objects.forEach((obj, i) => {
                     obj.mesh.geometry = jewelGeo;
                     obj.mesh.material.color.set(pinkColors[i % pinkColors.length]);
                     obj.mesh.material.emissiveIntensity = 0;
                 });
-            } else {
+            } else if (currentMode === 1) {
                 scene.background.set(0xfffdf5);
                 ui.className = 'theme-gold';
                 txt.innerText = '阳光模式：拖动与旋转';
-                sunGroup.visible = true;
                 objects.forEach((obj, i) => {
                     obj.mesh.geometry = jewelIcoGeo;
                     const c = goldColors[i % goldColors.length];
@@ -200,32 +271,62 @@
                     obj.mesh.material.emissive.set(c);
                     obj.mesh.material.emissiveIntensity = 0.5;
                 });
+            } else {
+                scene.background.set(0x020205);
+                ui.className = 'theme-night';
+                txt.innerText = '星夜漫步：长按散落星辰';
             }
         };
 
         // --- INPUTS ---
-        window.addEventListener('pointerdown', (e) => {
+        const handleDown = (e) => {
             if (e.target.closest('.nav-btn')) return;
             isHolding = true;
             if (window.navigator.vibrate) window.navigator.vibrate(10);
-        });
+            updateTarget(e);
+        };
+        const updateTarget = (e) => {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = (clientX / window.innerWidth) * 2 - 1;
+            const y = -(clientY / window.innerHeight) * 2 + 1;
+            if(currentMode === 2) {
+                const vec = new THREE.Vector3(x, y, 0.5).unproject(camera);
+                const dir = vec.sub(camera.position).normalize();
+                targetPos.copy(camera.position).add(dir.multiplyScalar(-camera.position.z / dir.z));
+            } else {
+                targetPos.set(x * 7.5, y * 5.5, 0);
+            }
+        };
+
+        window.addEventListener('pointerdown', handleDown);
+        window.addEventListener('pointermove', updateTarget);
         window.addEventListener('pointerup', () => {
             if (!isHolding) return;
             isHolding = false;
             if (currentMode === 0) currentPattern = (currentPattern + 1) % patterns.length;
         });
-        window.addEventListener('pointermove', (e) => {
-            const x = (e.clientX / window.innerWidth) * 2 - 1;
-            const y = -(e.clientY / window.innerHeight) * 2 + 1;
-            targetPos.set(x * 7.5, y * 5.5, 0);
-        });
 
-        document.getElementById('prevBtn').onclick = () => { currentMode = (currentMode + 1) % 2; updateMode(); };
-        document.getElementById('nextBtn').onclick = () => { currentMode = (currentMode + 1) % 2; updateMode(); };
+        document.getElementById('prevBtn').onclick = () => { currentMode = (currentMode + 2) % 3; updateMode(); };
+        document.getElementById('nextBtn').onclick = () => { currentMode = (currentMode + 1) % 3; updateMode(); };
 
-        // --- LOOP ---
+        function spawnBurst() {
+            for(let i=0; i<4; i++) { 
+                const idx = pIndex % pCount;
+                const i3 = idx * 3;
+                pPos[i3] = targetPos.x; pPos[i3+1] = targetPos.y; pPos[i3+2] = targetPos.z;
+                const a = Math.random() * Math.PI * 2;
+                const s = 0.01 + Math.random() * 0.02;
+                pVel[i3] = Math.cos(a) * s; pVel[i3+1] = Math.sin(a) * s; pVel[i3+2] = (Math.random()-0.5)*0.01;
+                pLife[idx] = 1.0;
+                const isGold = Math.random() > 0.7;
+                pColors[i3] = isGold ? 1.0 : 0.7; pColors[i3+1] = isGold ? 0.9 : 0.8; pColors[i3+2] = isGold ? 0.5 : 1.0; 
+                pIndex++;
+            }
+        }
+
+        // --- ANIMATION LOOP ---
         camera.position.z = isMobile ? 15 : 13;
-
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
@@ -235,44 +336,58 @@
                     const dest = isHolding ? obj.targets[currentPattern] : obj.startP;
                     obj.mesh.position.lerp(dest, 0.09);
                     obj.mesh.rotation.y += 0.02;
-                    obj.velocity.set(0,0,0); // Reset velocity for clean mode swap
+                    obj.velocity.set(0,0,0);
                 });
-            } else {
+            } else if (currentMode === 1) {
                 sunshineTime += 0.008;
                 sunGroup.position.lerp(targetPos, 0.1);
                 sunLight.position.copy(sunGroup.position);
                 sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, isHolding ? 30 : 15, 0.1);
                 sunSphere.scale.lerp(new THREE.Vector3().setScalar(isHolding ? 1.15 : 1.0), 0.1);
-
                 objects.forEach((j) => {
                     if (isHolding) {
-                        const visibleTarget = sunGroup.position.clone().add(new THREE.Vector3(0, 0, 1.2));
-                        const dir = new THREE.Vector3().subVectors(visibleTarget, j.mesh.position);
+                        const vT = sunGroup.position.clone().add(new THREE.Vector3(0, 0, 1.2));
+                        const dir = new THREE.Vector3().subVectors(vT, j.mesh.position);
                         const dist = dir.length();
                         dir.normalize();
                         j.velocity.add(dir.clone().multiplyScalar((15 - dist) * 0.015));
                         j.velocity.add(new THREE.Vector3(-dir.y, dir.x, 0).multiplyScalar(0.05));
                         if(dist < 3.0) j.velocity.add(dir.clone().multiplyScalar(-0.08));
                     } else {
-                        const angle = (sunshineTime * j.freq) + j.noiseOffset;
-                        const radiusBuzz = 1.0 + Math.sin(sunshineTime * 0.5 + j.noiseOffset) * 0.3;
-                        const buzzX = Math.cos(angle) * radiusBuzz;
-                        const buzzY = Math.sin(angle) * radiusBuzz;
-                        const buzzTarget = sunGroup.position.clone().add(new THREE.Vector3(buzzX, buzzY, -0.6));
-                        
-                        const dir = new THREE.Vector3().subVectors(buzzTarget, j.mesh.position);
-                        const dist = dir.length();
-                        j.velocity.add(dir.normalize().multiplyScalar(Math.max(0, (12 - dist) * 0.008)));
-
+                        const a = (sunshineTime * j.freq) + j.noiseOffset;
+                        const rB = 1.0 + Math.sin(sunshineTime * 0.5 + j.noiseOffset) * 0.3;
+                        const bT = sunGroup.position.clone().add(new THREE.Vector3(Math.cos(a)*rB, Math.sin(a)*rB, -0.6));
+                        const dir = new THREE.Vector3().subVectors(bT, j.mesh.position);
+                        j.velocity.add(dir.normalize().multiplyScalar(Math.max(0, (12 - dir.length()) * 0.008)));
                         const cDir = new THREE.Vector3().subVectors(sunGroup.position, j.mesh.position);
                         if(cDir.length() < 1.1) j.velocity.add(cDir.normalize().multiplyScalar(-0.015));
                         if (j.mesh.position.z > sunGroup.position.z - 0.2) j.velocity.z -= 0.02;
                     }
                     j.velocity.multiplyScalar(0.92);
                     j.mesh.position.add(j.velocity);
-                    j.mesh.rotation.x += 0.02;
-                    j.mesh.rotation.y += 0.02;
+                    j.mesh.rotation.x += 0.02; j.mesh.rotation.y += 0.02;
                 });
+            } else if (currentMode === 2) {
+                textMat.opacity = 0.4 + Math.sin(time * 2) * 0.2;
+                textMesh.rotation.y = Math.sin(time * 0.5) * 0.05;
+                if (isHolding) { spawnBurst(); textMat.color.setHSL(0.6, 0.8, 0.7 + Math.sin(time*10)*0.2); }
+                else { textMat.color.lerp(new THREE.Color(0xccddee), 0.1); }
+                const posA = nightParticles.geometry.attributes.position;
+                const colA = nightParticles.geometry.attributes.color;
+                for(let i=0; i<pCount; i++) {
+                    if(pLife[i] > 0) {
+                        const i3 = i * 3;
+                        posA.array[i3] += pVel[i3]; posA.array[i3+1] += pVel[i3+1]; posA.array[i3+2] += pVel[i3+2];
+                        pLife[i] -= 0.008; 
+                        const f = Math.max(0, pLife[i]);
+                        colA.array[i3] = (colA.array[i3] > 0.85 ? 1.0 : 0.7) * f;
+                        colA.array[i3+1] = (colA.array[i3+1] > 0.75 ? 0.9 : 0.8) * f;
+                        colA.array[i3+2] = (colA.array[i3+2] > 0.45 ? 0.5 : 1.0) * f;
+                        if(pLife[i] <= 0) posA.array[i3] = 5000; 
+                    }
+                }
+                posA.needsUpdate = true; colA.needsUpdate = true;
+                starMat.opacity = 0.6 + Math.sin(time) * 0.3;
             }
 
             camera.position.x = Math.sin(time * 0.15) * 0.4;
