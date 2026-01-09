@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel Triple v19</title>
+    <title>Aesthetic Jewel Triple v20</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -203,7 +203,7 @@
         const ctx = canvas.getContext('2d');
         canvas.width = 1024; canvas.height = 512;
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 240px serif'; // Smaller Font
+        ctx.font = 'bold 240px serif'; 
         ctx.textAlign = 'center';
         ctx.fillText('晚安', 512, 330);
         
@@ -213,10 +213,10 @@
             for (let x = 0; x < 1024; x += 4) {
                 if (imageData.data[(y * 1024 + x) * 4] > 128) {
                     // Added jitter to remove the grid look
-                    const jitter = 0.12;
+                    const jitter = 0.10; // Slightly tighter jitter for smaller size
                     textPointsArr.push(
-                        (x - 512) / 85 + (Math.random()-0.5) * jitter, 
-                        -(y - 256) / 85 + (Math.random()-0.5) * jitter, 
+                        (x - 512) / 100 + (Math.random()-0.5) * jitter, // Increased divisor from 85 to 100
+                        -(y - 256) / 100 + (Math.random()-0.5) * jitter, 
                         (Math.random()-0.5) * 0.2
                     );
                 }
