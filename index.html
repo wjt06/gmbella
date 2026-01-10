@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aesthetic Jewel Triple v21</title>
+    <title>Aesthetic Jewel Triple v22</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -166,8 +166,13 @@
         let motionEnabled = false;
         let motionPermissionAsked = false;
         let motionSupported = false;
-        let tiltX = 0; // -1 to 1, left/right tilt
-        let tiltY = 0; // -1 to 1, forward/back tilt
+        let tiltX = 0; // -1 to 1, left/right tilt (calibrated)
+        let tiltY = 0; // -1 to 1, forward/back tilt (calibrated)
+        let rawTiltX = 0; // Raw sensor values
+        let rawTiltY = 0;
+        let neutralGamma = 0; // Calibrated "center" position
+        let neutralBeta = 45; // Default assumes ~45° holding angle
+        let needsCalibration = true; // Will calibrate on first reading
         let autoDriftAngle = 0; // For fallback gentle drift
 
         // --- TEXTURE HELPER ---
@@ -354,14 +359,55 @@
             
             // gamma: left/right tilt (-90 to 90)
             // beta: front/back tilt (-180 to 180)
-            const gamma = event.gamma || 0; // left/right
-            const beta = event.beta || 0;   // front/back
+            const gamma = event.gamma || 0;
+            const beta = event.beta || 0;
             
-            // Normalize to -1 to 1 range, with some deadzone and smoothing
-            // Clamp to reasonable tilt range (±30 degrees for comfortable use)
-            const maxTilt = 30;
-            tiltX = Math.max(-1, Math.min(1, gamma / maxTilt));
-            tiltY = Math.max(-1, Math.min(1, (beta - 45) / maxTilt)); // 45° is "neutral" holding position
+            // Calibrate on first reading
+            if (needsCalibration) {
+                neutralGamma = gamma;
+                neutralBeta = beta;
+                needsCalibration = false;
+            }
+            
+            // Calculate tilt relative to neutral position
+            const maxTilt = 25; // Degrees of tilt for full range
+            const relativeGamma = gamma - neutralGamma;
+            const relativeBeta = beta - neutralBeta;
+            
+            // Convert to -1 to 1 range
+            rawTiltX = Math.max(-1, Math.min(1, relativeGamma / maxTilt));
+            rawTiltY = Math.max(-1, Math.min(1, relativeBeta / maxTilt));
+            
+            // Smooth the values (lerp toward raw values to reduce jitter)
+            tiltX = tiltX * 0.7 + rawTiltX * 0.3;
+            tiltY = tiltY * 0.7 + rawTiltY * 0.3;
+            
+            // Soft boundaries: dampen values as they approach edges
+            // This creates a "rubber band" feel near the edges
+            const softener = (v) => {
+                const abs = Math.abs(v);
+                if (abs > 0.7) {
+                    // Gradually reduce effectiveness past 70%
+                    const excess = abs - 0.7;
+                    const dampened = 0.7 + excess * 0.4; // Only 40% of excess movement
+                    return Math.sign(v) * Math.min(dampened, 0.9);
+                }
+                return v;
+            };
+            tiltX = softener(tiltX);
+            tiltY = softener(tiltY);
+        }
+        
+        // Recalibrate to current position
+        function recalibrateTilt() {
+            if (motionEnabled) {
+                // Set current raw position as new neutral
+                // We offset by current tilt to smoothly transition
+                neutralGamma += rawTiltX * 25; // Undo current offset
+                neutralBeta += rawTiltY * 25;
+                tiltX = 0;
+                tiltY = 0;
+            }
         }
         
         // Request permission (needed for iOS 13+)
@@ -568,6 +614,9 @@
                     obj.velocity.x += (Math.random() - 0.5) * 0.02;
                     obj.isSettled = false;
                 });
+            } else if (currentMode === 1 && isMobile) {
+                // Recalibrate tilt on tap release - makes current position the new "center"
+                recalibrateTilt();
             }
         });
 
