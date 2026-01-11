@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bella v25</title>
+    <title>Bella V25.1</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -408,8 +408,8 @@
         nightGroup.visible = false;
         scene.add(nightGroup);
 
-        // Stars
-        const starCount = 1500;
+        // Stars (doubled from 1500 → 3000)
+        const starCount = 3000;
         const starGeo = new THREE.BufferGeometry();
         const starPosArr = new Float32Array(starCount * 3);
         const starSizes = new Float32Array(starCount);
@@ -562,7 +562,7 @@
             }
         }
         
-        // Shooting star (extremely subtle trail)
+        // Shooting star (subtle but noticeable trail - ~25% towards original strength)
         let shootingStarActive = false;
         let shootingStarTime = 0;
         let shootingStarNextTime = 3 + Math.random() * 5;
@@ -808,7 +808,7 @@
                 
                 if (isMobile && !isHolding) {
                     if (motionEnabled) {
-                        const tiltRange = 4;
+                        const tiltRange = 2;  // Reduced by 50% (was 4)
                         targetPos.x = tiltX * tiltRange;
                         targetPos.y = tiltY * tiltRange;
                         targetPos.z = 0;
@@ -962,7 +962,7 @@
                 colA.needsUpdate = true;
                 scaleAttr.needsUpdate = true;
                 
-                // Shooting star update (much more subtle)
+                // Shooting star update
                 shootingStarTime += 0.016;
                 
                 if (!shootingStarActive && shootingStarTime > shootingStarNextTime) {
