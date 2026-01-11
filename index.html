@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bella v25.1</title>
+    <title>Bella v26</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -258,7 +258,7 @@
         const GROUND_Y = -3.5;
         const GROUND_BOUNCE = 0.3;
         const GROUND_FRICTION = 0.85;
-        const SETTLE_THRESHOLD = 0.001;
+        const SETTLE_THRESHOLD = 0.05;
 
         const objects = [];
         for (let i = 0; i < 420; i++) {
@@ -723,6 +723,7 @@
                     if (isHolding) {
                         obj.restTime = 0;
                         obj.frozen = false;
+                        obj.isSettled = false;
                         
                         const target = obj.targets[currentPattern];
                         
@@ -749,7 +750,9 @@
                             }
                         }
                     } else {
-                        if (obj.frozen) return;
+                        if (obj.frozen) {
+                            return;
+                        }
                         
                         obj.velocity.y += GRAVITY;
                         
@@ -773,34 +776,45 @@
                             if (obj.mesh.position.z < -1) {
                                 obj.mesh.position.z += 0.1;
                             }
-                            
-                            const speed = obj.velocity.length();
-                            if (speed < SETTLE_THRESHOLD) {
-                                obj.velocity.set(0, 0, 0);
-                                obj.isSettled = true;
-                            }
                         }
                         
                         obj.velocity.multiplyScalar(0.995);
                         
+                        const speed = obj.velocity.length();
+                        if (speed < SETTLE_THRESHOLD && obj.mesh.position.y <= GROUND_Y + 0.16) {
+                            obj.isSettled = true;
+                        } else {
+                            obj.isSettled = false;
+                            obj.restTime = 0;
+                        }
+                        
                         if (obj.isSettled) {
                             obj.restTime += 0.016;
-                            if (obj.restTime > 1.5) {
-                                obj.frozen = true;
-                                obj.velocity.set(0, 0, 0);
+                            
+                            // Strong damping to kill jitter quickly
+                            obj.velocity.multiplyScalar(0.8);
+                            
+                            // After 1 second settled, gradually ramp down velocity over ~1 second
+                            if (obj.restTime > 1.0) {
+                                obj.velocity.lerp(new THREE.Vector3(0, 0, 0), 0.06);
+                                
+                                if (speed < SETTLE_THRESHOLD) {
+                                    obj.frozen = true;
+                                    obj.velocity.set(0, 0, 0);
+                                }
                             }
                         }
                     }
                     
                     if (!obj.frozen) {
                         obj.mesh.position.add(obj.velocity);
-                    }
-                    
-                    const speed = obj.velocity.length();
-                    if (speed > 0.001) {
-                        obj.mesh.rotation.x += obj.velocity.y * 0.5;
-                        obj.mesh.rotation.y += obj.velocity.x * 0.5;
-                        obj.mesh.rotation.z += speed * 0.1;
+                        
+                        const speed = obj.velocity.length();
+                        if (speed > 0.001) {
+                            obj.mesh.rotation.x += obj.velocity.y * 0.5;
+                            obj.mesh.rotation.y += obj.velocity.x * 0.5;
+                            obj.mesh.rotation.z += speed * 0.1;
+                        }
                     }
                 });
             } else if (currentMode === 1) {
