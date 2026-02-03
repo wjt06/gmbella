@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bella v28.1</title>
+    <title>Bella v29</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -67,10 +67,9 @@
             letter-spacing: 2px;
             font-size: 14px;
             pointer-events: none;
-            opacity: 0; /* Hidden by default */
+            opacity: 0; 
             transition: opacity 1s ease;
         }
-        /* Only animate when the visible class is actually present */
         #ui-instruction.visible { 
             opacity: 0.8; 
             animation: pulse 3s infinite ease-in-out;
@@ -157,9 +156,9 @@
 
         // --- BUBBLE MODE CONFIG & DATA ---
         const bubbleConfig = {
-            bubbleSpeed: 1.15, // Increased speed (was 1.0)
+            bubbleSpeed: 1.15, 
             wobbleSpeed: 2.0,
-            spawnRate: 75,     // Slower spawn rate (was 60, higher number = slower)
+            spawnRate: 75,
         };
 
         const words = [
@@ -192,6 +191,7 @@
             { en: "supportive", zh: "很支持人" },
             { en: "caring", zh: "很贴心" },
             { en: "patient", zh: "有耐心" },
+            { en: "strong", zh: "很坚强" },
             { en: "honest", zh: "真诚" },
             { en: "hardworking", zh: "很努力" }
         ];
@@ -884,7 +884,9 @@
             
             sunGroup.visible = (currentMode === 1);
             nightGroup.visible = (currentMode === 2);
-            objects.forEach(obj => obj.mesh.visible = (currentMode === 0));
+            
+            // Fix: Objects are visible in Mode 0 OR Mode 1
+            objects.forEach(obj => obj.mesh.visible = (currentMode === 0 || currentMode === 1));
             
             // Clean up bubbles if leaving mode 3
             if (currentMode !== 3) {
