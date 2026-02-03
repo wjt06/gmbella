@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bella v27</title>
+    <title>Bella v28</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -67,11 +67,14 @@
             letter-spacing: 2px;
             font-size: 14px;
             pointer-events: none;
-            opacity: 0;
+            opacity: 0; /* Hidden by default */
             transition: opacity 1s ease;
+        }
+        /* Only animate when the visible class is actually present */
+        #ui-instruction.visible { 
+            opacity: 0.8; 
             animation: pulse 3s infinite ease-in-out;
         }
-        #ui-instruction.visible { opacity: 0.8; }
         
         @keyframes pulse {
             0%, 100% { opacity: 0.6; }
@@ -154,9 +157,9 @@
 
         // --- BUBBLE MODE CONFIG & DATA ---
         const bubbleConfig = {
-            bubbleSpeed: 1.0,
+            bubbleSpeed: 1.15, // Increased speed (was 1.0)
             wobbleSpeed: 2.0,
-            spawnRate: 60, 
+            spawnRate: 75,     // Slower spawn rate (was 60, higher number = slower)
         };
 
         const words = [
@@ -204,7 +207,6 @@
         scene.add(topLight);
 
         // --- STATE ---
-        // Calculate Shenzhen Time (UTC+8)
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const shenzhenTime = new Date(utc + (3600000 * 8));
@@ -779,12 +781,20 @@
         nightGroup.add(shootingStarTrail);
 
         // --- BUBBLE MODE LOGIC ---
-        function spawnBubble() {
+        function spawnBubble(preWarm = false) {
             const mesh = new THREE.Mesh(bubbleGeo, bubbleMat);
-            const x = (Math.random() - 0.5) * 6;
-            const y = -8; 
+            
+            // Constrain X range for mobile to keep bubbles on screen
+            // Mobile (approx width < 600) needs narrower spawn range
+            const rangeX = isMobile ? 2.8 : 6.0;
+            const x = (Math.random() - 0.5) * rangeX;
+            
+            // If pre-warming, spawn randomly up the screen, otherwise spawn at bottom
+            const y = preWarm ? -8 + Math.random() * 12 : -8;
+            
             const z = (Math.random() - 0.5) * 2;
             mesh.position.set(x, y, z);
+            
             const scale = 0.8 + Math.random() * 0.4;
             mesh.scale.setScalar(scale);
             scene.add(mesh);
@@ -877,7 +887,7 @@
             nightGroup.visible = (currentMode === 2);
             objects.forEach(obj => obj.mesh.visible = (currentMode === 0));
             
-            // Clean up bubbles if leaving mode 3 (optional, but cleaner)
+            // Clean up bubbles if leaving mode 3
             if (currentMode !== 3) {
                  bubbles.forEach(b => scene.remove(b.mesh));
                  bubbles.length = 0;
@@ -923,6 +933,11 @@
                 sunLight.intensity = 0;
                 motionPrompt.classList.remove('visible');
                 bubbleInstr.classList.add('visible');
+                
+                // Pre-warm: spawn 6 bubbles immediately so screen isn't empty
+                if (bubbles.length === 0) {
+                    for(let k=0; k<6; k++) spawnBubble(true);
+                }
             }
         };
 
