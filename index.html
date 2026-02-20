@@ -3,114 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bella v3.0</title>
+    <title>Bella v30 - Remastered</title>
     <style>
-        :root {
-            --pink-soft: #fff5f8;
-            --pink-accent: #ff8da1;
-            --gold-soft: #fffdf5;
-            --gold-accent: #ffab00;
-            --night-bg: #050510;
-        }
-
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
+            -webkit-user-select: none;
             user-select: none;
             box-sizing: border-box;
         }
-
         body { 
             margin: 0; 
             overflow: hidden; 
-            background: var(--pink-soft); 
-            transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #fff5f8; 
+            transition: background 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: none; 
+            font-family: "PingFang SC", "STHeiti", "Microsoft YaHei", sans-serif;
         }
-
+        
         /* Glassmorphism UI */
         #ui-container {
             position: absolute; 
-            bottom: 40px; 
+            bottom: 60px; 
             width: 100%; 
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            z-index: 100;
+            gap: 30px;
             pointer-events: none;
+            z-index: 10;
         }
-
         .nav-btn {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             pointer-events: auto;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-size: 24px;
-            color: inherit;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            font-weight: 200;
         }
-
-        .nav-btn:active { transform: scale(0.85); background: rgba(255, 255, 255, 0.5); }
-
+        .nav-btn:active { 
+            transform: scale(0.85); 
+            background: rgba(255, 255, 255, 0.5); 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
         #ui-text {
             text-align: center;
-            font-weight: 300; 
+            font-weight: 400; 
             letter-spacing: 4px; 
-            font-size: 16px; 
-            min-width: 140px;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            backdrop-filter: blur(4px);
+            font-size: 15px; 
+            opacity: 0.9;
+            min-width: 160px;
+            transition: color 1s ease;
         }
 
-        /* Instruction Overlay */
         #ui-instruction {
             position: absolute;
-            top: 20%;
+            bottom: 120px;
             width: 100%;
             text-align: center;
-            color: var(--pink-accent);
-            font-weight: 300;
-            letter-spacing: 2px;
-            font-size: 14px;
+            color: #ff8da1;
+            font-weight: 400;
+            letter-spacing: 3px;
+            font-size: 13px;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.8s ease;
+            opacity: 0; 
+            transform: translateY(10px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #ui-instruction.visible { 
+            opacity: 0.9; 
+            transform: translateY(0);
+            animation: floatText 3s infinite ease-in-out;
+        }
+        
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(-5px); opacity: 1.0; }
         }
 
-        #ui-instruction.visible { opacity: 0.7; animation: float 3s infinite ease-in-out; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* Theme Styling */
-        .theme-pink { color: #d63384; border-color: #ff8da1; }
-        .theme-gold { color: #b8860b; border-color: #ffd700; }
-        .theme-night { color: #a0a0ff; border-color: #4a4a8a; text-shadow: 0 0 10px rgba(160,160,255,0.5); }
-        .theme-bubble { color: #ff69b4; }
-
+        .theme-pink { color: #d81b60; }
+        .theme-gold { color: #d48800; }
+        .theme-night { color: #c0c0ff; text-shadow: 0 0 20px rgba(120, 120, 255, 0.8); }
+        .theme-bubble { color: #f48fb1; }
+        
         #motion-prompt {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 30px; border-radius: 24px; text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1); z-index: 1000; display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 170, 0, 0.15), inset 0 0 0 1px rgba(255,255,255,0.5);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 85%;
+            max-width: 320px;
         }
-        #motion-prompt.visible { display: block; }
+        #motion-prompt.visible { 
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #motion-prompt p {
+            color: #886622;
+            margin: 0 0 20px 0;
+            font-size: 15px;
+            line-height: 1.6;
+            letter-spacing: 1px;
+        }
         #motion-prompt button {
-            background: #ff8da1; border: none; padding: 12px 30px; border-radius: 20px;
-            color: white; font-weight: bold; margin-top: 15px; cursor: pointer;
+            background: linear-gradient(135deg, #ffdc55, #ffb300);
+            border: none;
+            padding: 14px 36px;
+            border-radius: 30px;
+            color: #664400;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(255, 170, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: inherit;
+        }
+        #motion-prompt button:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 5px rgba(255, 170, 0, 0.3);
         }
     </style>
 </head>
@@ -122,10 +156,10 @@
     </div>
 
     <div id="ui-instruction">戳破泡泡 / Pop the bubbles</div>
-
+    
     <div id="motion-prompt">
-        <p>开启重力感应<br>让阳光随你倾斜 ☀️</p>
-        <button id="enableMotion">确定</button>
+        <p>轻轻倾斜手机<br>让小太阳跟着你移动 ☀️</p>
+        <button id="enableMotion">开启</button>
     </div>
 
     <script type="importmap">
@@ -134,139 +168,814 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- ENGINE SETUP ---
+        // --- CORE SETUP ---
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xfff5f8);
+        scene.fog = new THREE.FogExp2(0xfff5f8, 0.015); // Adds depth
+        
+        const isMobile = window.innerWidth < 600;
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1; // Slightly lowered to prevent blowout with new materials
         document.body.appendChild(renderer.domElement);
 
-        // --- THEMES & MODES ---
-        let currentMode = 0; // 0: Surprise, 1: Sun, 2: Night, 3: Bubbles
-        const modes = [
-            { id: 0, name: '惊喜', bg: 0xfff5f8, class: 'theme-pink' },
-            { id: 1, name: '阳光', bg: 0xfffdf5, class: 'theme-gold' },
-            { id: 2, name: '晚安', bg: 0x020205, class: 'theme-night' },
-            { id: 3, name: '泡泡', bg: 0xfff0f5, class: 'theme-bubble' }
+        // --- DATA & CONFIG ---
+        const bubbleConfig = { bubbleSpeed: 1.0, wobbleSpeed: 2.0, spawnRate: 75 };
+        const words = [
+            { en: "funny", zh: "幽默" }, { en: "smart", zh: "聪明" }, { en: "pretty", zh: "漂亮" },
+            { en: "talented", zh: "有才华" }, { en: "skilled", zh: "很厉害" }, { en: "sweet", zh: "温柔" },
+            { en: "amazing", zh: "太棒了" }, { en: "cute", zh: "可爱" }, { en: "charming", zh: "有魅力" },
+            { en: "elegant", zh: "高雅" }, { en: "warm", zh: "温暖" }, { en: "beautiful", zh: "很美" },
+            { en: "gorgeous", zh: "太美了" }, { en: "stunning", zh: "惊艳" }, { en: "caring", zh: "很贴心" }
         ];
 
-        // --- OBJECTS: JEWELS (Instanced for Performance) ---
-        const JEWEL_COUNT = 400;
-        const jewelGeo = new THREE.OctahedronGeometry(0.18, 0);
-        const jewelMat = new THREE.MeshPhysicalMaterial({
-            color: 0xff69b4, metalness: 0.2, roughness: 0.1,
-            transmission: 0.6, thickness: 1, ior: 1.5, clearcoat: 1
-        });
-        const jewelMesh = new THREE.InstancedMesh(jewelGeo, jewelMat, JEWEL_COUNT);
-        scene.add(jewelMesh);
+        // --- LIGHTS ---
+        const amb = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(amb);
+        const sunLight = new THREE.PointLight(0xfff700, 0, 40);
+        scene.add(sunLight);
+        const topLight = new THREE.DirectionalLight(0xffffff, 3.0);
+        topLight.position.set(5, 15, 10);
+        scene.add(topLight);
+        
+        // Add a gentle blue fill light to make shadows richer
+        const fillLight = new THREE.DirectionalLight(0x90b0ff, 1.0);
+        fillLight.position.set(-5, 0, -5);
+        scene.add(fillLight);
 
-        const dummy = new THREE.Object3D();
-        const jewelData = Array.from({ length: JEWEL_COUNT }, () => ({
-            pos: new THREE.Vector3((Math.random()-0.5)*10, -5, (Math.random()-0.5)*5),
-            vel: new THREE.Vector3(),
-            rot: new THREE.Euler(Math.random()*6, Math.random()*6, Math.random()*6),
-            target: new THREE.Vector3()
-        }));
+        // --- STATE ---
+        const now = new Date();
+        const currentHour = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 8)).getHours();
+        
+        let currentMode = 0; 
+        if (currentHour >= 6 && currentHour < 9) currentMode = 1; 
+        else if (currentHour >= 21 || currentHour < 6) currentMode = 2;
+        else currentMode = Math.random() < 0.5 ? 0 : 3;
 
-        // --- SUN & NIGHT GROUPS ---
-        const sunGroup = new THREE.Group();
-        const sunSphere = new THREE.Mesh(
-            new THREE.SphereGeometry(1, 32, 32),
-            new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffaa00, emissiveIntensity: 2 })
-        );
-        sunGroup.add(sunSphere);
-        scene.add(sunGroup);
-
-        // --- INTERACTION STATE ---
-        let isPointerDown = false;
-        let pointerPos = new THREE.Vector2();
-        let raycaster = new THREE.Raycaster();
-        let activePattern = 0;
-
-        // --- LOGIC: PATTERNS ---
-        const getPatternPos = (i, patternId) => {
-            const scale = window.innerWidth < 600 ? 0.8 : 1.2;
-            if (patternId === 0) { // Heart
-                const t = i / JEWEL_COUNT * Math.PI * 2;
-                const x = 16 * Math.pow(Math.sin(t), 3);
-                const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-                return new THREE.Vector3(x * 0.15 * scale, y * 0.15 * scale, 0);
-            }
-            if (patternId === 1) { // Circle
-                const a = i / JEWEL_COUNT * Math.PI * 2;
-                return new THREE.Vector3(Math.cos(a) * 3 * scale, Math.sin(a) * 3 * scale, 0);
-            }
-            return new THREE.Vector3((Math.random()-0.5)*10, -10, -5); // Default: Fall
-        };
-
-        // --- EVENT LISTENERS ---
-        const updateModeUI = () => {
-            const m = modes[currentMode];
-            scene.background = new THREE.Color(m.bg);
-            document.getElementById('ui-container').className = m.class;
-            document.getElementById('ui-text').innerText = m.name;
+        let isHolding = false;
+        let currentPattern = 0;
+        let sunshineTime = 0;
+        let targetPos = new THREE.Vector3(0, 0, 0);
+        
+        const bubbles = [], activeTexts = [], activeParticles = [];
+        let bubbleSpawnTimer = 0, popCount = 0;
+        
+        // --- AUDIO REMASTER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playPopSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             
-            sunGroup.visible = (currentMode === 1);
-            jewelMesh.visible = (currentMode === 0 || currentMode === 1);
-            document.getElementById('ui-instruction').classList.toggle('visible', currentMode === 3);
-        };
-
-        window.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('.nav-btn')) return;
-            isPointerDown = true;
-            if (currentMode === 0) activePattern = (activePattern + 1) % 2;
-        });
-
-        window.addEventListener('pointerup', () => isPointerDown = false);
-        window.addEventListener('pointermove', (e) => {
-            pointerPos.x = (e.clientX / window.innerWidth) * 2 - 1;
-            pointerPos.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        document.getElementById('nextBtn').onclick = () => { currentMode = (currentMode + 1) % 4; updateModeUI(); };
-        document.getElementById('prevBtn').onclick = () => { currentMode = (currentMode + 3) % 4; updateModeUI(); };
-
-        // --- MAIN ANIMATION LOOP ---
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            const time = clock.getElapsedTime();
-
-            if (currentMode === 0 || currentMode === 1) {
-                for (let i = 0; i < JEWEL_COUNT; i++) {
-                    const d = jewelData[i];
-                    const target = isPointerDown ? getPatternPos(i, activePattern) : new THREE.Vector3(d.pos.x, -6, d.pos.z);
-                    
-                    // Smooth spring physics
-                    const force = new THREE.Vector3().subVectors(target, d.pos).multiplyScalar(0.05);
-                    d.vel.add(force).multiplyScalar(0.92);
-                    d.pos.add(d.vel);
-                    
-                    d.rot.x += d.vel.length() * 0.2;
-                    d.rot.y += 0.01;
-
-                    dummy.position.copy(d.pos);
-                    dummy.rotation.copy(d.rot);
-                    dummy.updateMatrix();
-                    jewelMesh.setMatrixAt(i, dummy.matrix);
-                }
-                jewelMesh.instanceMatrix.needsUpdate = true;
-            }
-
-            if (currentMode === 1) {
-                sunGroup.position.x = THREE.MathUtils.lerp(sunGroup.position.x, pointerPos.x * 5, 0.1);
-                sunGroup.position.y = THREE.MathUtils.lerp(sunGroup.position.y, pointerPos.y * 5, 0.1);
-                sunSphere.scale.setScalar(1 + Math.sin(time * 2) * 0.05);
-            }
-
-            renderer.render(scene, camera);
+            // Smoother, "watery" pop sound
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            const baseFreq = 600 + Math.random() * 200;
+            osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+            
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        camera.position.z = 12;
-        updateModeUI();
+        // --- MOTION ---
+        let motionEnabled = false, motionPermissionAsked = false, motionSupported = !!window.DeviceOrientationEvent;
+        let tiltX = 0, tiltY = 0, rawTiltX = 0, rawTiltY = 0, neutralGamma = 0, neutralBeta = 45;
+        let needsCalibration = true, autoDriftAngle = 0;
+
+        // --- UTILS ---
+        function createCircleTexture(color, size, softEdge = true) {
+            const s = size || 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = s;
+            const ctx = canvas.getContext('2d');
+            const center = s / 2;
+            const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
+            
+            if (color) {
+                gradient.addColorStop(0, color);
+                gradient.addColorStop(softEdge ? 0.3 : 0.8, color);
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            } else {
+                gradient.addColorStop(0, 'rgba(255,255,255,1)');
+                gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+                gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, s, s);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createTextTexture(en, zh) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Add a subtle glow behind text
+            ctx.shadowColor = 'rgba(255, 105, 180, 0.5)';
+            ctx.shadowBlur = 15;
+            
+            ctx.font = 'bold 100px "Times New Roman", serif';
+            ctx.fillStyle = '#ff4d88'; 
+            ctx.fillText(en, 256, 190);
+            
+            ctx.font = 'bold 85px "PingFang SC", "Microsoft YaHei", sans-serif';
+            ctx.fillStyle = '#ff8da1'; 
+            ctx.fillText(zh, 256, 320);
+            
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            return tex;
+        }
+
+        // --- JEWELS (MODE 0 & 1) ---
+        const jewelGeo = new THREE.OctahedronGeometry(0.16, 0); // Slightly larger
+        const jewelIcoGeo = new THREE.IcosahedronGeometry(0.18, 0);
+        const pinkColors = [0xff007f, 0xff69b4, 0xff1493, 0xffffff, 0xff99aa, 0xfce4ec];
+        const goldColors = [0xffff00, 0xffd700, 0xffaa00, 0xffffff];
+
+        const patterns = [];
+        const qOffset = (isMobile ? 1.0 : 1.8) + 0.15;
+        
+        // QT
+        const qt = [];
+        for(let i=0; i<50; i++) { let a = (i/50)*Math.PI*2; qt.push({x: Math.cos(a)*1.6 - qOffset, y: Math.sin(a)*1.6}); }
+        for(let i=0; i<8; i++) qt.push({x: (-qOffset + 0.8) + i*0.15, y: -0.8 - i*0.15});
+        const tStartX = 0.5 - 0.15;
+        for(let i=0; i<18; i++) qt.push({x: tStartX + i*0.2, y: 1.6});
+        for(let i=0; i<18; i++) qt.push({x: tStartX + 1.7, y: 1.6 - i*0.2});
+        patterns.push(qt);
+
+        // Smile
+        const smile = [];
+        for(let i=0; i<45; i++) { let a = (i/45)*Math.PI*2; smile.push({x: Math.cos(a)*2.2, y: Math.sin(a)*2.2}); }
+        smile.push({x: -0.8, y: 0.7}, {x: 0.8, y: 0.7});
+        for(let i=0; i<20; i++) { let a = Math.PI + 0.4 + (i/20)*(Math.PI - 0.8); smile.push({x: Math.cos(a)*1.3, y: Math.sin(a)*0.9 - 0.1}); }
+        patterns.push(smile);
+
+        // Rose
+        const rose = [];
+        for(let i=0; i<40; i++) { let a = (i/40)*Math.PI*2; let r = 0.8 + Math.cos(a*5)*0.3; rose.push({x: Math.cos(a)*r, y: Math.sin(a)*r + 1.2}); }
+        for(let i=0; i<18; i++) rose.push({x: 0, y: 0.8 - i*0.25});
+        rose.push({x: 0.3, y: -0.5}, {x: -0.3, y: -1.2});
+        patterns.push(rose);
+
+        // Sun Pattern
+        const sunPattern = [];
+        for(let i=0; i<40; i++) { let a = (i/40)*Math.PI*2; sunPattern.push({x: Math.cos(a)*1.4, y: Math.sin(a)*1.4}); }
+        for(let r=0; r<8; r++) {
+            let rayAngle = (r/8)*Math.PI*2 + Math.PI/8;
+            for(let i=0; i<4; i++) {
+                let dist = 1.6 + i*0.3;
+                sunPattern.push({x: Math.cos(rayAngle)*dist, y: Math.sin(rayAngle)*dist});
+            }
+        }
+        sunPattern.push({x: -0.5, y: 0.35}, {x: 0.5, y: 0.35});
+        for(let i=0; i<6; i++) { let a = (i/6)*Math.PI*2; sunPattern.push({x: -0.5 + Math.cos(a)*0.15, y: 0.35 + Math.sin(a)*0.15}); }
+        for(let i=0; i<6; i++) { let a = (i/6)*Math.PI*2; sunPattern.push({x: 0.5 + Math.cos(a)*0.15, y: 0.35 + Math.sin(a)*0.15}); }
+        for(let i=0; i<16; i++) { let a = Math.PI + (i/15)*Math.PI; sunPattern.push({x: Math.cos(a)*0.6, y: Math.sin(a)*0.35 - 0.2}); }
+        sunPattern.push({x: -0.85, y: 0.0}, {x: -0.75, y: -0.08}, {x: 0.85, y: 0.0}, {x: 0.75, y: -0.08});
+        patterns.push(sunPattern);
+
+        const objects = [];
+        for (let i = 0; i < 420; i++) {
+            // Remastered Material: Added iridescence for an 'opal' look
+            const mat = new THREE.MeshPhysicalMaterial({ 
+                color: pinkColors[i % pinkColors.length], 
+                metalness: 0.1, 
+                roughness: 0.1, 
+                transmission: 0.7, 
+                thickness: 1.2, 
+                ior: 1.5, 
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1,
+                iridescence: 0.9,
+                iridescenceIOR: 1.4
+            });
+            const mesh = new THREE.Mesh(jewelGeo, mat);
+            const pileX = (Math.random()-0.5)*6;
+            const pileY = -3.5 + Math.random();
+            const pileZ = (Math.random()-0.5)*3;
+            mesh.position.set(pileX, pileY, pileZ);
+            
+            // Randomize starting rotation
+            mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+            scene.add(mesh);
+            
+            objects.push({ 
+                mesh, 
+                targets: [], 
+                velocity: new THREE.Vector3(0, 0, 0),
+                launchDelay: Math.random() * 0.35,
+                wobbleOffset: Math.random() * Math.PI * 2,
+                wobbleSpeed: 0.5 + Math.random() * 0.6,
+                isSettled: true, restTime: 0, frozen: false
+            });
+        }
+
+        patterns.forEach((pts) => {
+            const scale = isMobile ? 0.8 : 1.1;
+            objects.forEach((obj, i) => {
+                let target = new THREE.Vector3();
+                if (i < pts.length) target.set(pts[i].x * scale, pts[i].y * scale, 0);
+                else target.set((Math.random()-0.5)*50, (Math.random()-0.5)*30, -50);
+                obj.targets.push(target);
+            });
+        });
+
+        // --- SUN GROUP (MODE 1) ---
+        const sunGroup = new THREE.Group();
+        sunGroup.visible = false;
+        scene.add(sunGroup);
+        
+        // Added Sun Corona (Glow)
+        const coronaMat = new THREE.SpriteMaterial({
+            map: createCircleTexture('rgba(255, 200, 50, 1)', 256),
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.8
+        });
+        const corona = new THREE.Sprite(coronaMat);
+        corona.scale.set(4, 4, 1);
+        sunGroup.add(corona);
+
+        const sunSphere = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffcc00, emissiveIntensity: 1.0 }));
+        sunGroup.add(sunSphere);
+        const faceMat = new THREE.MeshBasicMaterial({ color: 0x442200 });
+        const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), faceMat);
+        eyeL.position.set(-0.25, 0.2, 0.85); sunGroup.add(eyeL);
+        const eyeR = eyeL.clone(); eyeR.position.set(0.25, 0.2, 0.85); sunGroup.add(eyeR);
+        const sunSmile = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.05, 12, 24, Math.PI), faceMat);
+        sunSmile.position.set(0, -0.05, 0.82); sunSmile.rotation.x = Math.PI * 0.95; sunGroup.add(sunSmile);
+        const cheekMat = new THREE.MeshBasicMaterial({ color: 0xff6644, transparent: true, opacity: 0.6 });
+        const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), cheekMat);
+        cheekL.position.set(-0.55, -0.05, 0.75); sunGroup.add(cheekL);
+        const cheekR = cheekL.clone(); cheekR.position.set(0.55, -0.05, 0.75); sunGroup.add(cheekR);
+
+        // --- BUBBLES (MODE 3) ---
+        const bubbleGeo = new THREE.SphereGeometry(0.65, 32, 32);
+        const bubbleMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff, metalness: 0.05, roughness: 0.0,
+            transmission: 1.0, thickness: 0.5, iridescence: 1.0,
+            iridescenceIOR: 1.33, clearcoat: 1.0, transparent: true, opacity: 0.9
+        });
+
+        const bubbleParticleGeo = new THREE.BufferGeometry();
+        const bpCount = 40; 
+        const bpPos = new Float32Array(bpCount * 3);
+        bubbleParticleGeo.setAttribute('position', new THREE.BufferAttribute(bpPos, 3));
+        const bubbleParticleMat = new THREE.PointsMaterial({
+            color: 0xffffff, size: 0.2, transparent: true, opacity: 0.9,
+            map: createCircleTexture('rgba(255,255,255,1)', 32),
+            depthWrite: false, blending: THREE.AdditiveBlending
+        });
+
+        // --- NIGHT (MODE 2) ---
+        const nightGroup = new THREE.Group();
+        nightGroup.visible = false;
+        scene.add(nightGroup);
+
+        const starCount = 3500;
+        const starGeo = new THREE.BufferGeometry();
+        const starPosArr = new Float32Array(starCount * 3);
+        const starSizes = new Float32Array(starCount);
+        const starBaseSizes = new Float32Array(starCount);
+        const starTwinkleTime = new Float32Array(starCount);
+        const starTwinkling = new Uint8Array(starCount);
+        
+        for(let i=0; i<starCount; i++) {
+            starPosArr[i*3] = (Math.random() - 0.5) * 70;
+            starPosArr[i*3+1] = (Math.random() - 0.5) * 50;
+            starPosArr[i*3+2] = -5 - Math.random() * 20;
+            const baseSize = 0.05 + Math.random() * 0.08;
+            starBaseSizes[i] = starSizes[i] = baseSize;
+            starTwinkleTime[i] = Math.random() * 10;
+            starTwinkling[i] = 0;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPosArr, 3));
+        starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+        
+        const starMat = new THREE.PointsMaterial({ 
+            color: 0xffffff, size: 0.1, transparent: true, opacity: 0.9,
+            blending: THREE.AdditiveBlending, map: createCircleTexture('rgba(200,220,255,1)', 64),
+            sizeAttenuation: true
+        });
+        nightGroup.add(new THREE.Points(starGeo, starMat));
+
+        // Goodnight Text
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1024; canvas.height = 512;
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 240px "STHeiti", "Microsoft YaHei", sans-serif'; 
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('晚安', 512, 256);
+        
+        const textPointsArr = [], textPointsOriginal = [];
+        const imageData = ctx.getImageData(0, 0, 1024, 512).data;
+        for (let y = 0; y < 512; y += 5) {
+            for (let x = 0; x < 1024; x += 5) {
+                if (imageData[(y * 1024 + x) * 4] > 128) {
+                    const px = (x - 512) / 90 + (Math.random()-0.5) * 0.1;
+                    const py = -(y - 256) / 90 + (Math.random()-0.5) * 0.1;
+                    const pz = (Math.random()-0.5) * 0.3;
+                    textPointsArr.push(px, py, pz); textPointsOriginal.push(px, py, pz);
+                }
+            }
+        }
+        const textGeo = new THREE.BufferGeometry();
+        textGeo.setAttribute('position', new THREE.Float32BufferAttribute(textPointsArr, 3));
+        const textMat = new THREE.PointsMaterial({ 
+            color: 0xccddff, size: 0.06, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending 
+        });
+        const textMesh = new THREE.Points(textGeo, textMat);
+        textMesh.position.y = 0.5;
+        nightGroup.add(textMesh);
+        const textPositions = textMesh.geometry.attributes.position;
+
+        // Night Particles
+        const pCount = 800; 
+        const pGeo = new THREE.BufferGeometry();
+        const pPos = new Float32Array(pCount * 3).fill(0), pVel = new Float32Array(pCount * 3).fill(0);
+        const pLife = new Float32Array(pCount).fill(0), pPhase = new Float32Array(pCount);
+        const particleColors = new Float32Array(pCount * 3), pScales = new Float32Array(pCount).fill(1.0);
+        
+        for (let i = 0; i < pCount; i++) pPhase[i] = Math.random() * Math.PI * 2;
+        pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+        pGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+        pGeo.setAttribute('aScale', new THREE.BufferAttribute(pScales, 1));
+
+        const pMat = new THREE.PointsMaterial({ 
+            size: 0.25, transparent: true, blending: THREE.AdditiveBlending, 
+            vertexColors: true, map: createCircleTexture('rgba(255,255,220,1)', 64), depthWrite: false 
+        });
+        pMat.onBeforeCompile = (shader) => {
+            shader.vertexShader = shader.vertexShader
+                .replace('#include <common>', '#include <common>\nattribute float aScale;')
+                .replace('#include <size_vertex>', 'gl_PointSize = size * aScale;\n#ifdef USE_SIZEATTENUATION\n  gl_PointSize *= ( scale / - mvPosition.z );\n#endif');
+        };
+        const nightParticles = new THREE.Points(pGeo, pMat);
+        nightGroup.add(nightParticles);
+        const posA = nightParticles.geometry.attributes.position, colA = nightParticles.geometry.attributes.color, scaleAttr = nightParticles.geometry.attributes.aScale;
+        let pIndex = 0;
+
+        function spawnNightParticles() {
+            for(let i = 0; i < 6; i++) {
+                const idx = pIndex % pCount;
+                const i3 = idx * 3;
+                pPos[i3] = targetPos.x + (Math.random() - 0.5) * 0.4;
+                pPos[i3+1] = targetPos.y + (Math.random() - 0.5) * 0.4;
+                pPos[i3+2] = targetPos.z;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 0.01 + Math.random() * 0.015;
+                pVel[i3] = Math.cos(angle) * speed; pVel[i3+1] = Math.sin(angle) * speed + 0.01; pVel[i3+2] = (Math.random() - 0.5) * 0.01;
+                pLife[idx] = 1.0; pPhase[idx] = Math.random() * Math.PI * 2;
+                
+                const c = Math.random();
+                if (c < 0.4) { particleColors[i3] = 1.0; particleColors[i3+1] = 0.85; particleColors[i3+2] = 0.4; }
+                else if (c < 0.7) { particleColors[i3] = 0.7; particleColors[i3+1] = 0.8; particleColors[i3+2] = 1.0; }
+                else { particleColors[i3] = 1.0; particleColors[i3+1] = 0.6; particleColors[i3+2] = 0.9; }
+                
+                pScales[idx] = 0.8 + Math.random() * 0.5;
+                pIndex++;
+            }
+        }
+
+        // Shooting star
+        let shootingStarActive = false, shootingStarTime = 0, shootingStarNextTime = 2 + Math.random() * 4;
+        let shootingStarPos = new THREE.Vector3(), shootingStarVel = new THREE.Vector3();
+        const shootingStarGeo = new THREE.SphereGeometry(0.08, 16, 16);
+        shootingStarGeo.scale(1, 1, 4.0);
+        const shootingStarMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending });
+        const shootingStar = new THREE.Mesh(shootingStarGeo, shootingStarMat);
+        nightGroup.add(shootingStar);
+
+        const trailLength = 25;
+        const trailPositions = new Float32Array(trailLength * 3), trailAlphas = new Float32Array(trailLength);
+        const trailGeo = new THREE.BufferGeometry();
+        trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+        trailGeo.setAttribute('alpha', new THREE.BufferAttribute(trailAlphas, 1));
+        const trailMat = new THREE.ShaderMaterial({
+            transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+            vertexShader: `
+                attribute float alpha; varying float vAlpha;
+                void main() {
+                    vAlpha = alpha; vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = 15.0 * alpha * (300.0 / -mvPosition.z);
+                    gl_Position = projectionMatrix * mvPosition;
+                }`,
+            fragmentShader: `
+                varying float vAlpha;
+                void main() {
+                    vec2 uv = gl_PointCoord - 0.5; float dist = length(uv);
+                    if (dist > 0.5) discard;
+                    gl_FragColor = vec4(0.8, 0.9, 1.0, vAlpha * pow(1.0 - dist * 2.0, 1.5));
+                }`
+        });
+        nightGroup.add(new THREE.Points(trailGeo, trailMat));
+
+        // --- BUBBLE MODE LOGIC ---
+        function spawnBubble(preWarm = false) {
+            const mesh = new THREE.Mesh(bubbleGeo, bubbleMat);
+            const rangeX = isMobile ? 3.0 : 7.0;
+            const x = (Math.random() - 0.5) * rangeX;
+            const y = preWarm ? -8 + Math.random() * 12 : -8;
+            mesh.position.set(x, y, (Math.random() - 0.5) * 2);
+            
+            const scale = 0.8 + Math.random() * 0.4;
+            mesh.scale.setScalar(0.01); // Start small and spring up
+            scene.add(mesh);
+            bubbles.push({ mesh, speed: bubbleConfig.bubbleSpeed * (0.8 + Math.random() * 0.4), wobbleOffset: Math.random() * Math.PI * 2, baseX: x, targetScale: scale, popAnim: 0 });
+        }
+
+        function spawnBubbleParticles(pos) {
+            const geo = bubbleParticleGeo.clone();
+            const positions = new Float32Array(bpCount * 3), velocities = [];
+            for(let i=0; i<bpCount; i++) {
+                positions[i*3] = pos.x; positions[i*3+1] = pos.y; positions[i*3+2] = pos.z;
+                const theta = Math.random() * Math.PI * 2, phi = Math.random() * Math.PI;
+                const speed = 0.08 + Math.random() * 0.12;
+                velocities.push({ x: speed * Math.sin(phi) * Math.cos(theta), y: speed * Math.sin(phi) * Math.sin(theta), z: speed * Math.cos(phi) });
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const ps = new THREE.Points(geo, bubbleParticleMat.clone());
+            scene.add(ps);
+            activeParticles.push({ mesh: ps, velocities, life: 1.0 });
+        }
+
+        // Remastered Spring Easing
+        function spring(t) { return 1 + Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3); }
+
+        function createBubbleWord(pos, scale) {
+            let en, zh;
+            if (popCount === 0) { en = "Ling"; zh = "玲"; } 
+            else if (popCount === 1) { en = "is"; zh = "是"; } 
+            else { const r = words[Math.floor(Math.random() * words.length)]; en = r.en; zh = r.zh; }
+            popCount++;
+            
+            const tex = createTextTexture(en, zh);
+            const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false });
+            const sprite = new THREE.Sprite(mat);
+            sprite.position.copy(pos);
+            scene.add(sprite);
+            
+            const finalScale = scale * 3.0;
+            activeTexts.push({ sprite, life: 4.0, maxOpacity: 1.0, floatSpeed: 0.008, targetScale: finalScale, timeScale: 0 });
+        }
+
+        function checkBubblePop(event) {
+            const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+            const clientX = event.clientX || (event.touches ? event.touches[0].clientX : 0);
+            const clientY = event.clientY || (event.touches ? event.touches[0].clientY : 0);
+            pointer.x = (clientX / window.innerWidth) * 2 - 1; pointer.y = -(clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            
+            const intersects = raycaster.intersectObjects(bubbles.map(b => b.mesh));
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const index = bubbles.findIndex(b => b.mesh === hitMesh);
+                if (index !== -1) {
+                    const b = bubbles[index];
+                    b.popAnim = 1; // Trigger pop scale animation
+                    playPopSound();
+                    
+                    setTimeout(() => {
+                        spawnBubbleParticles(b.mesh.position);
+                        createBubbleWord(b.mesh.position, b.targetScale);
+                        scene.remove(b.mesh); b.mesh.geometry.dispose();
+                        const newIdx = bubbles.indexOf(b);
+                        if(newIdx > -1) bubbles.splice(newIdx, 1);
+                    }, 80); // Slight delay for juicy anticipation
+                }
+            }
+        }
+
+        // --- THEME SWAP ---
+        const updateMode = () => {
+            const ui = document.getElementById('ui-container'), txt = document.getElementById('ui-text');
+            const bubbleInstr = document.getElementById('ui-instruction');
+            
+            sunGroup.visible = (currentMode === 1); nightGroup.visible = (currentMode === 2);
+            objects.forEach(obj => obj.mesh.visible = (currentMode === 0 || currentMode === 1));
+            
+            if (currentMode !== 3) {
+                bubbles.forEach(b => scene.remove(b.mesh)); bubbles.length = 0;
+                activeTexts.forEach(t => scene.remove(t.sprite)); activeTexts.length = 0;
+                activeParticles.forEach(p => scene.remove(p.mesh)); activeParticles.length = 0;
+                bubbleInstr.classList.remove('visible');
+            }
+
+            if (currentMode === 0) {
+                document.body.style.background = scene.fog.color.getStyle();
+                scene.background.set(0xfff5f8); scene.fog.color.set(0xfff5f8);
+                ui.className = 'theme-pink'; txt.innerText = '长按开启惊喜';
+                sunLight.intensity = 0;
+                objects.forEach((obj, i) => {
+                    obj.mesh.geometry = jewelGeo;
+                    obj.mesh.material.color.set(pinkColors[i % pinkColors.length]);
+                    obj.mesh.material.emissiveIntensity = 0;
+                });
+                document.getElementById('motion-prompt').classList.remove('visible');
+            } else if (currentMode === 1) {
+                scene.background.set(0xfffdf5); scene.fog.color.set(0xfffdf5);
+                ui.className = 'theme-gold'; txt.innerText = '阳光';
+                objects.forEach((obj, i) => {
+                    obj.mesh.geometry = jewelIcoGeo; const c = goldColors[i % goldColors.length];
+                    obj.mesh.material.color.set(c); obj.mesh.material.emissive.set(c); obj.mesh.material.emissiveIntensity = 0.5;
+                });
+                if (isMobile && motionSupported && !motionPermissionAsked && !motionEnabled) document.getElementById('motion-prompt').classList.add('visible');
+            } else if (currentMode === 2) {
+                scene.background.set(0x020208); scene.fog.color.set(0x020208);
+                ui.className = 'theme-night'; txt.innerText = '晚安';
+                document.getElementById('motion-prompt').classList.remove('visible');
+            } else if (currentMode === 3) {
+                scene.background.set(0xfff0f5); scene.fog.color.set(0xfff0f5);
+                ui.className = 'theme-bubble'; txt.innerText = '泡泡';
+                sunLight.intensity = 0; document.getElementById('motion-prompt').classList.remove('visible');
+                bubbleInstr.classList.add('visible');
+                if (bubbles.length === 0) for(let k=0; k<6; k++) spawnBubble(true);
+            }
+        };
+
+        let holdStartTime = 0;
+
+        // --- INPUTS ---
+        const handleDown = (e) => {
+            if (e.target.closest('.nav-btn') || e.target.closest('button')) return;
+            if (currentMode === 3) { checkBubblePop(e); return; }
+            isHolding = true; holdStartTime = Date.now() * 0.001;
+            if (window.navigator.vibrate) window.navigator.vibrate(15);
+            updateTarget(e);
+            objects.forEach(obj => { obj.isSettled = false; obj.restTime = 0; obj.frozen = false; });
+        };
+        
+        const updateTarget = (e) => {
+            if (currentMode === 3) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX, clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = (clientX / window.innerWidth) * 2 - 1, y = -(clientY / window.innerHeight) * 2 + 1;
+            if(currentMode === 2) {
+                const vec = new THREE.Vector3(x, y, 0.5).unproject(camera), dir = vec.sub(camera.position).normalize();
+                targetPos.copy(camera.position).add(dir.multiplyScalar(-camera.position.z / dir.z));
+            } else targetPos.set(x * 7.5, y * 5.5, 0);
+        };
+
+        window.addEventListener('pointerdown', handleDown);
+        window.addEventListener('pointermove', updateTarget);
+        window.addEventListener('pointerup', () => {
+            if (!isHolding) return;
+            isHolding = false;
+            if (currentMode === 0) {
+                currentPattern = (currentPattern + 1) % patterns.length;
+                objects.forEach(obj => { obj.velocity.y += 0.03 + Math.random() * 0.04; obj.velocity.x += (Math.random() - 0.5) * 0.03; obj.isSettled = false; });
+            } else if (currentMode === 1 && isMobile && motionEnabled) {
+                neutralGamma += rawTiltX * 25; neutralBeta += rawTiltY * 25; tiltX = tiltY = 0;
+            }
+        });
+
+        document.getElementById('prevBtn').onclick = () => { currentMode = (currentMode + 3) % 4; updateMode(); };
+        document.getElementById('nextBtn').onclick = () => { currentMode = (currentMode + 1) % 4; updateMode(); };
+        document.getElementById('enableMotion').onclick = async () => {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                try {
+                    if (await DeviceOrientationEvent.requestPermission() === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation); motionEnabled = true;
+                    }
+                } catch (e) { console.log(e); }
+            } else { window.addEventListener('deviceorientation', handleOrientation); motionEnabled = true; }
+            document.getElementById('motion-prompt').classList.remove('visible'); motionPermissionAsked = true;
+        };
+
+        function handleOrientation(e) {
+            if (!motionEnabled) return;
+            const g = e.gamma || 0, b = e.beta || 0;
+            if (needsCalibration) { neutralGamma = g; neutralBeta = b; needsCalibration = false; }
+            rawTiltX = Math.max(-1, Math.min(1, (g - neutralGamma) / 25)); rawTiltY = Math.max(-1, Math.min(1, (b - neutralBeta) / 25));
+            tiltX = tiltX * 0.7 + rawTiltX * 0.3; tiltY = tiltY * 0.7 + rawTiltY * 0.3;
+        }
+
+        updateMode();
+
+        // --- ANIMATION LOOP ---
+        camera.position.z = isMobile ? 16 : 14;
+        const clock = new THREE.Clock();
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001, dt = clock.getDelta();
+
+            if (currentMode === 0) {
+                objects.forEach((obj) => {
+                    if (isHolding) {
+                        obj.restTime = 0; obj.frozen = false; obj.isSettled = false;
+                        const target = obj.targets[currentPattern], timeSinceHold = time - holdStartTime;
+                        const launchProgress = Math.max(0, Math.min(1, (timeSinceHold - obj.launchDelay) * 3.5));
+                        if (launchProgress > 0) {
+                            const dx = target.x - obj.mesh.position.x, dy = target.y - obj.mesh.position.y, dz = target.z - obj.mesh.position.z;
+                            const stiffness = 0.08 * launchProgress;
+                            obj.velocity.add(new THREE.Vector3(dx, dy, dz).multiplyScalar(stiffness));
+                            obj.velocity.multiplyScalar(0.82);
+                            if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 0.5) {
+                                obj.velocity.x += Math.sin(time * obj.wobbleSpeed * 8 + obj.wobbleOffset) * 0.002;
+                                obj.velocity.y += Math.cos(time * obj.wobbleSpeed * 6 + obj.wobbleOffset) * 0.002;
+                            }
+                        }
+                    } else {
+                        if (obj.frozen) return;
+                        obj.velocity.y -= 0.012; // gravity
+                        if (obj.mesh.position.y <= -3.3) {
+                            obj.mesh.position.y = -3.3;
+                            if (obj.velocity.y < -0.01) { obj.velocity.y *= -0.35; obj.velocity.x += (Math.random() - 0.5) * 0.02; } 
+                            else obj.velocity.y = 0;
+                            obj.velocity.x *= 0.85; obj.velocity.z *= 0.85;
+                        }
+                        obj.velocity.multiplyScalar(0.99);
+                        const speed = obj.velocity.length();
+                        if (speed < 0.05 && obj.mesh.position.y <= -3.2) {
+                            obj.restTime += dt;
+                            if (obj.restTime > 0.8) { obj.frozen = true; obj.velocity.setScalar(0); }
+                        } else obj.restTime = 0;
+                    }
+                    if (!obj.frozen) {
+                        obj.mesh.position.add(obj.velocity);
+                        const s = obj.velocity.length();
+                        if (s > 0.001) { obj.mesh.rotation.x += obj.velocity.y; obj.mesh.rotation.y += obj.velocity.x; obj.mesh.rotation.z += s * 0.2; }
+                    }
+                });
+            } else if (currentMode === 1) {
+                sunshineTime += dt;
+                if (isMobile && !isHolding) {
+                    if (motionEnabled) { targetPos.x = tiltX * 2.5; targetPos.y = tiltY * 2.5; } 
+                    else { autoDriftAngle += 0.01; targetPos.x = Math.sin(autoDriftAngle) * 2; targetPos.y = Math.sin(autoDriftAngle * 2); }
+                }
+                sunGroup.position.lerp(targetPos, 0.08); sunLight.position.copy(sunGroup.position);
+                
+                const glow = Math.sin(time * 2) * 0.15;
+                sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, (isHolding ? 35 : 15) + glow * 5, 0.1);
+                sunSphere.material.emissiveIntensity = 1.0 + glow;
+                corona.scale.setScalar(isHolding ? 4.8 : 4.0 + glow);
+                
+                sunSphere.scale.lerp(new THREE.Vector3().setScalar(isHolding ? 1.15 : 1.0 + glow * 0.1), 0.1);
+                const w = isHolding ? 0.15 : 0.08;
+                sunSphere.material.color.lerp(new THREE.Color(isHolding ? 0xffdd44 : 0xffff00), w);
+                sunSphere.material.emissive.lerp(new THREE.Color(isHolding ? 0xffaa00 : 0xffea00), w);
+                corona.material.color.lerp(new THREE.Color(isHolding ? 0xff8800 : 0xffcc00), w);
+                
+                const sq = isHolding ? 0.5 : Math.max(0.8, 1 - sunGroup.position.distanceTo(targetPos) * 1.5);
+                eyeL.scale.y = eyeR.scale.y = THREE.MathUtils.lerp(eyeL.scale.y, sq, 0.15);
+                cheekL.material.opacity = cheekR.material.opacity = THREE.MathUtils.lerp(cheekL.material.opacity, isHolding ? 0.8 : 0.4, 0.1);
+                sunSmile.scale.lerp(new THREE.Vector3().setScalar(isHolding ? 1.2 : 1.0), 0.1);
+
+                objects.forEach((j) => {
+                    if (isHolding) {
+                        const dir = new THREE.Vector3().subVectors(sunGroup.position.clone().add(new THREE.Vector3(0,0,1)), j.mesh.position);
+                        const d = dir.length(); dir.normalize();
+                        j.velocity.add(dir.multiplyScalar((15 - d) * 0.018)).add(new THREE.Vector3(-dir.y, dir.x, 0).multiplyScalar(0.06));
+                        if(d < 3.5) j.velocity.add(dir.multiplyScalar(-0.1));
+                    } else {
+                        const a = (sunshineTime * j.wobbleSpeed) + j.wobbleOffset, rB = 1.2 + Math.sin(sunshineTime + j.wobbleOffset) * 0.4;
+                        const target = sunGroup.position.clone().add(new THREE.Vector3(Math.cos(a)*rB, Math.sin(a)*rB, -0.5));
+                        const dir = new THREE.Vector3().subVectors(target, j.mesh.position);
+                        j.velocity.add(dir.normalize().multiplyScalar(Math.max(0, (12 - dir.length()) * 0.01)));
+                        if (j.mesh.position.distanceTo(sunGroup.position) < 1.3) j.velocity.add(new THREE.Vector3().subVectors(sunGroup.position, j.mesh.position).normalize().multiplyScalar(-0.02));
+                    }
+                    j.velocity.multiplyScalar(0.91); j.mesh.position.add(j.velocity);
+                    j.mesh.rotation.x += 0.03; j.mesh.rotation.y += 0.03;
+                });
+            } else if (currentMode === 2) {
+                const sAttr = starGeo.attributes.size;
+                if (Math.random() < 0.05) { const r = Math.floor(Math.random()*starCount); if (!starTwinkling[r]) { starTwinkling[r]=1; starTwinkleTime[r]=0; } }
+                for (let i = 0; i < starCount; i++) {
+                    if (starTwinkling[i]) {
+                        starTwinkleTime[i] += dt * 3;
+                        if (starTwinkleTime[i] < 1) sAttr.array[i] = starBaseSizes[i] * (1 + starTwinkleTime[i] * 2);
+                        else if (starTwinkleTime[i] < 2) sAttr.array[i] = starBaseSizes[i] * (1 + (2 - starTwinkleTime[i]) * 2);
+                        else { sAttr.array[i] = starBaseSizes[i]; starTwinkling[i] = 0; }
+                    }
+                }
+                sAttr.needsUpdate = true;
+                
+                const tPos = textPositions.array;
+                for (let i = 0; i < textPointsOriginal.length / 3; i++) {
+                    const i3 = i * 3;
+                    tPos[i3] = textPointsOriginal[i3] + Math.sin(time + textPointsOriginal[i3]) * 0.008;
+                    tPos[i3+1] = textPointsOriginal[i3+1] + Math.sin(time*0.8 + i*0.01) * 0.006;
+                }
+                textPositions.needsUpdate = true;
+                textMat.opacity = 0.75 + Math.sin(time) * 0.1;
+                textMesh.rotation.y = Math.sin(time * 0.2) * 0.02;
+                
+                if (isHolding) { spawnNightParticles(); textMat.color.setHSL(0.1, 0.5, 0.9); textMat.opacity = 0.95; } 
+                else textMat.color.lerp(new THREE.Color(0xccddff), 0.05);
+
+                for (let i = 0; i < pCount; i++) {
+                    if (pLife[i] > 0) {
+                        const i3 = i * 3; pVel[i3] += Math.sin(time*2+pPhase[i])*0.002; pVel[i3+1] += 0.0004;
+                        posA.array[i3] += pVel[i3]; posA.array[i3+1] += pVel[i3+1]; posA.array[i3+2] += pVel[i3+2];
+                        pVel[i3] *= 0.99; pVel[i3+1] *= 0.99; pVel[i3+2] *= 0.99; pLife[i] -= dt;
+                        const alpha = Math.max(0, pLife[i]);
+                        scaleAttr.array[i] = pScales[i] * (1 + (1 - alpha));
+                        colA.array[i3] = particleColors[i3] * alpha; colA.array[i3+1] = particleColors[i3+1] * alpha; colA.array[i3+2] = particleColors[i3+2] * alpha;
+                        if (pLife[i] <= 0) posA.array[i3] = posA.array[i3+1] = posA.array[i3+2] = 5000;
+                    }
+                }
+                posA.needsUpdate = colA.needsUpdate = scaleAttr.needsUpdate = true;
+
+                shootingStarTime += dt;
+                if (!shootingStarActive && shootingStarTime > shootingStarNextTime) {
+                    shootingStarActive = true; shootingStarTime = 0;
+                    shootingStarPos.set((Math.random()-0.3)*20, 8+Math.random()*5, -10-Math.random()*8);
+                    shootingStarVel.set(-0.2-Math.random()*0.15, -0.25-Math.random()*0.2, 0.08);
+                    shootingStar.position.copy(shootingStarPos); shootingStarMat.opacity = 0;
+                    for (let i=0; i<trailLength; i++) trailAlphas[i] = 0;
+                }
+                if (shootingStarActive) {
+                    shootingStarPos.add(shootingStarVel); shootingStar.position.copy(shootingStarPos);
+                    shootingStar.lookAt(shootingStarPos.clone().add(shootingStarVel));
+                    if (shootingStarTime < 0.2) shootingStarMat.opacity = shootingStarTime/0.2 * 0.8;
+                    else if (shootingStarTime < 1.0) shootingStarMat.opacity = 0.8;
+                    else shootingStarMat.opacity = Math.max(0, 0.8 - (shootingStarTime - 1.0) * 2);
+                    
+                    if (shootingStarTime > 1.5 || shootingStarPos.y < -12) {
+                        shootingStarActive = false; shootingStarMat.opacity = 0; shootingStarNextTime = 3 + Math.random() * 6; shootingStarTime = 0;
+                    }
+                    for (let i=trailLength-1; i>0; i--) {
+                        const i3 = i*3, p3 = (i-1)*3;
+                        trailPositions[i3] = trailPositions[p3]; trailPositions[i3+1] = trailPositions[p3+1]; trailPositions[i3+2] = trailPositions[p3+2];
+                        trailAlphas[i] = trailAlphas[i-1] * 0.88; // Slower fade for trail
+                    }
+                    trailPositions[0] = shootingStarPos.x; trailPositions[1] = shootingStarPos.y; trailPositions[2] = shootingStarPos.z;
+                    trailAlphas[0] = 0.6;
+                    trailGeo.attributes.position.needsUpdate = trailGeo.attributes.alpha.needsUpdate = true;
+                } else {
+                    for (let i=0; i<trailLength; i++) trailAlphas[i] *= 0.9;
+                    trailGeo.attributes.alpha.needsUpdate = true;
+                }
+            } else if (currentMode === 3) {
+                bubbleSpawnTimer++;
+                if (bubbleSpawnTimer > bubbleConfig.spawnRate) { spawnBubble(); bubbleSpawnTimer = 0; }
+                
+                for (let i = bubbles.length - 1; i >= 0; i--) {
+                    const b = bubbles[i];
+                    b.mesh.position.y += b.speed * dt * 60; 
+                    b.mesh.position.x = b.baseX + Math.sin(time * bubbleConfig.wobbleSpeed + b.wobbleOffset) * 0.5;
+                    
+                    // Anticipation scale pop
+                    if (b.popAnim > 0) {
+                        b.popAnim += dt * 10;
+                        const s = b.targetScale * (1 + b.popAnim * 0.5);
+                        b.mesh.scale.setScalar(s);
+                    } else if (b.mesh.scale.x < b.targetScale) {
+                        b.mesh.scale.lerp(new THREE.Vector3().setScalar(b.targetScale), 0.1);
+                    }
+
+                    if (b.mesh.position.y > 10) { scene.remove(b.mesh); b.mesh.geometry.dispose(); bubbles.splice(i, 1); }
+                }
+                
+                for (let i = activeTexts.length - 1; i >= 0; i--) {
+                    const t = activeTexts[i];
+                    t.life -= dt; t.timeScale += dt * 2.5;
+                    t.sprite.position.y += t.floatSpeed;
+                    
+                    // Spring easing for text
+                    const currentScale = t.targetScale * spring(t.timeScale);
+                    t.sprite.scale.setScalar(currentScale);
+
+                    if (t.life > 1.0) t.sprite.material.opacity = Math.min(t.maxOpacity, t.sprite.material.opacity + 0.08);
+                    else t.sprite.material.opacity = Math.max(0, t.life);
+                    
+                    if (t.life <= 0) { scene.remove(t.sprite); t.sprite.material.map.dispose(); t.sprite.material.dispose(); activeTexts.splice(i, 1); }
+                }
+                
+                for (let i = activeParticles.length - 1; i >= 0; i--) {
+                    const p = activeParticles[i]; p.life -= dt * 1.5;
+                    const pos = p.mesh.geometry.attributes.position.array;
+                    for(let k=0; k<bpCount; k++) {
+                        pos[k*3] += p.velocities[k].x; pos[k*3+1] += p.velocities[k].y; pos[k*3+2] += p.velocities[k].z;
+                        p.velocities[k].y -= 0.08 * dt; 
+                    }
+                    p.mesh.geometry.attributes.position.needsUpdate = true; p.mesh.material.opacity = p.life;
+                    if (p.life <= 0) { scene.remove(p.mesh); p.mesh.geometry.dispose(); p.mesh.material.dispose(); activeParticles.splice(i, 1); }
+                }
+            }
+
+            // Gentle camera breathe
+            camera.position.x = Math.sin(time * 0.3) * 0.3;
+            camera.position.y = Math.cos(time * 0.25) * 0.2;
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+        }
         animate();
 
         window.addEventListener('resize', () => {
